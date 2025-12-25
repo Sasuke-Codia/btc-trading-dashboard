@@ -74,28 +74,36 @@ export async function getOnChainData() {
     const blockDetailsRes = await axios.get(`${MEMPOOL_BASE_URL}/block/${blockHash}`);
     const blockDetails = blockDetailsRes.data;
 
-    // Get current difficulty from stats endpoint
-    const statsRes = await axios.get(`${MEMPOOL_BASE_URL}/blockchain`);
-    const currentDifficulty = statsRes.data.difficulty || 0;
-
     // Calculate reward (halving logic)
     const halvingInterval = 210000;
     const initialReward = 50;
     const halvings = Math.floor(height / halvingInterval);
     const currentReward = initialReward / Math.pow(2, halvings);
 
+    // Get difficulty from the difficulty adjustment data
+    // The API provides nextDifficulty instead of current difficulty
+    const nextDifficulty = diffRes.data.nextDifficulty || 0;
+
     return {
-      difficulty: currentDifficulty,
+      difficulty: nextDifficulty,
       nextDifficultyEstimate: diffRes.data.estimatedRetargetDate,
       remainingBlocks: diffRes.data.remainingBlocks,
       blockHeight: height,
       blockTime: blockDetails.timestamp,
       reward: currentReward,
-      difficultyChange: diffRes.data.difficultyChange
+      difficultyChange: diffRes.data.difficultyChange || 0
     };
   } catch (error) {
     console.error('Error fetching on-chain data:', error);
-    return null;
+    return {
+      difficulty: 0,
+      nextDifficultyEstimate: 0,
+      remainingBlocks: 0,
+      blockHeight: 0,
+      blockTime: 0,
+      reward: 6.25,
+      difficultyChange: 0
+    };
   }
 }
 

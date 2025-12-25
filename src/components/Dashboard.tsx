@@ -348,7 +348,7 @@ export default function Dashboard() {
                 <span className="text-[10px] uppercase font-bold">Difficulty</span>
               </div>
               <p className="text-xl font-mono font-bold text-white">
-                {(data.onChain.difficulty / 1e12).toFixed(2)}T
+                {data.onChain?.difficulty ? (data.onChain.difficulty / 1e12).toFixed(2) : '--'}T
               </p>
             </div>
             <div className="space-y-1">
