@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const BITGET_BASE_URL = 'https://api.bitget.com/api/v2';
 const MEMPOOL_BASE_URL = 'https://mempool.space/api';
+const BLOCKCHAIN_INFO_URL = 'https://blockchain.info/q';
 
 export async function getBitgetPrices() {
   try {
@@ -62,9 +63,10 @@ export async function getLiquidationData() {
 
 export async function getOnChainData() {
   try {
-    const [diffRes, blockRes] = await Promise.all([
-      axios.get(`${MEMPOOL_BASE_URL}/v1/difficulty-adjustment`),
-      axios.get(`${MEMPOOL_BASE_URL}/blocks/tip/height`)
+    const [diffRes, blockRes, mempoolDiffRes] = await Promise.all([
+      axios.get(`${BLOCKCHAIN_INFO_URL}/getdifficulty`),
+      axios.get(`${MEMPOOL_BASE_URL}/blocks/tip/height`),
+      axios.get(`${MEMPOOL_BASE_URL}/v1/difficulty-adjustment`)
     ]);
 
     // Get latest block for reward and time
@@ -80,18 +82,17 @@ export async function getOnChainData() {
     const halvings = Math.floor(height / halvingInterval);
     const currentReward = initialReward / Math.pow(2, halvings);
 
-    // Get difficulty from the difficulty adjustment data
-    // The API provides nextDifficulty instead of current difficulty
-    const nextDifficulty = diffRes.data.nextDifficulty || 0;
+    // Get difficulty from blockchain.info (returns as string in scientific notation, convert to number)
+    const currentDifficulty = parseFloat(diffRes.data);
 
     return {
-      difficulty: nextDifficulty,
-      nextDifficultyEstimate: diffRes.data.estimatedRetargetDate,
-      remainingBlocks: diffRes.data.remainingBlocks,
+      difficulty: currentDifficulty,
+      nextDifficultyEstimate: mempoolDiffRes.data.estimatedRetargetDate,
+      remainingBlocks: mempoolDiffRes.data.remainingBlocks,
       blockHeight: height,
       blockTime: blockDetails.timestamp,
       reward: currentReward,
-      difficultyChange: diffRes.data.difficultyChange || 0
+      difficultyChange: mempoolDiffRes.data.difficultyChange || 0
     };
   } catch (error) {
     console.error('Error fetching on-chain data:', error);
