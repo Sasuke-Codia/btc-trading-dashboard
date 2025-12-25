@@ -296,6 +296,39 @@ export default function Dashboard() {
                 />
               </div>
             </div>
+
+            {/* Support & Resistance Levels */}
+            <div className="pt-4 border-t border-slate-700 space-y-3">
+              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Support & Resistance</p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Resistance Levels */}
+                <div className="space-y-2">
+                  <p className="text-[9px] font-bold text-red-400 uppercase">Resistance</p>
+                  {data.signals.levels?.resistance?.map((level: any, i: number) => (
+                    <div key={i} className="p-2 bg-red-500/10 border border-red-500/30 rounded">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-mono text-red-300">${level.price.toLocaleString()}</span>
+                        <span className="text-[9px] text-red-400 font-bold">+{level.distance.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Support Levels */}
+                <div className="space-y-2">
+                  <p className="text-[9px] font-bold text-green-400 uppercase">Support</p>
+                  {data.signals.levels?.support?.map((level: any, i: number) => (
+                    <div key={i} className="p-2 bg-green-500/10 border border-green-500/30 rounded">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-mono text-green-300">${level.price.toLocaleString()}</span>
+                        <span className="text-[9px] text-green-400 font-bold">-{level.distance.toFixed(2)}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -140,6 +140,7 @@ export async function getFearAndGreed() {
 
 export function calculateSignals(priceData: any, onChainData: any) {
   const ratio = priceData?.ratio || 1;
+  const currentPrice = priceData?.usdt || 0;
   
   // Scalping Logic: Focus on Future/Spot Ratio and immediate price action
   let scalpingProb = 0.5;
@@ -158,6 +159,15 @@ export function calculateSignals(priceData: any, onChainData: any) {
     scalpingInterpretation = 'Markt ist ausgewogen. Abwarten auf nächsten Impuls.';
   }
 
+  // Calculate Support & Resistance Levels (using psychological levels & Fibonacci)
+  const nextResistance1 = Math.ceil(currentPrice / 1000) * 1000; // Next round thousand
+  const nextResistance2 = nextResistance1 + 5000; // 5k above
+  const nextSupport1 = Math.floor(currentPrice / 1000) * 1000; // Previous round thousand
+  const nextSupport2 = nextSupport1 - 5000; // 5k below
+
+  const distanceToR1 = ((nextResistance1 - currentPrice) / currentPrice) * 100;
+  const distanceToS1 = ((currentPrice - nextSupport1) / currentPrice) * 100;
+
   // Swing Logic: Focus on On-Chain Health (Difficulty & Reward)
   const swingProb = 0.68;
   const swingType: 'BUY' | 'SHORT' = 'BUY';
@@ -173,6 +183,16 @@ export function calculateSignals(priceData: any, onChainData: any) {
       type: swingType,
       probability: Math.round(swingProb * 100),
       interpretation: swingInterpretation
+    },
+    levels: {
+      resistance: [
+        { price: nextResistance1, distance: Math.abs(distanceToR1) },
+        { price: nextResistance2, distance: Math.abs(((nextResistance2 - currentPrice) / currentPrice) * 100) }
+      ],
+      support: [
+        { price: nextSupport1, distance: Math.abs(distanceToS1) },
+        { price: nextSupport2, distance: Math.abs(((currentPrice - nextSupport2) / currentPrice) * 100) }
+      ]
     }
   };
 }
