@@ -333,7 +333,7 @@ export default function Dashboard() {
         </section>
 
         {/* Fear & Greed Section */}
-        <section className="col-span-1 md:col-span-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-green-400" />
             <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
