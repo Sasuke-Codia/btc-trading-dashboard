@@ -7,7 +7,8 @@ import {
   calculateSignals,
   getEtfFlows,
   getLiquidationData,
-  getMacroeconomicData
+  getMacroeconomicData,
+  getEMALevels
 } from '@/lib/api';
 
 export async function GET() {
@@ -23,6 +24,9 @@ export async function GET() {
     ]);
 
     const signals = calculateSignals(prices, onChain);
+    
+    // Berechne EMA Levels
+    const emaLevels = prices ? await getEMALevels(prices.usdt) : null;
 
     // Berechne M2 zu BTC Verhältnis
     const m2ToBtcRatio = prices && prices.usdt ? (macro.m2Trillions * 1_000_000_000_000) / prices.usdt : 0;
@@ -38,6 +42,7 @@ export async function GET() {
         ...macro,
         m2ToBtcRatio: Math.round(m2ToBtcRatio)
       },
+      emaLevels,
       sentiment: {
         score: fng?.score || 0.5,
         label: fng?.label || 'Neutral',

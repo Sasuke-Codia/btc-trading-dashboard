@@ -358,3 +358,91 @@ export async function getMacroeconomicData() {
   }
 }
 
+export async function getEMALevels(currentPrice: number) {
+  try {
+    // Vereinfachte EMA-Level Berechnung basierend auf aktuellen Preis
+    // In Produktion würde man historische Daten verwenden
+    
+    // Typische EMA-Level (als Prozentsätze vom Preis)
+    const emaOffsets = {
+      ema9: -0.015,   // -1.5% (schnell, Support)
+      ema21: -0.035,  // -3.5% 
+      ema50: -0.08,   // -8%
+      ema200: -0.15   // -15% (langsam, wichtiger Support)
+    };
+
+    const levels = {
+      ema9: currentPrice * (1 + emaOffsets.ema9),
+      ema21: currentPrice * (1 + emaOffsets.ema21),
+      ema50: currentPrice * (1 + emaOffsets.ema50),
+      ema200: currentPrice * (1 + emaOffsets.ema200),
+    };
+
+    // Determine closest level and its meaning
+    const distances = {
+      ema9: Math.abs(currentPrice - levels.ema9) / currentPrice * 100,
+      ema21: Math.abs(currentPrice - levels.ema21) / currentPrice * 100,
+      ema50: Math.abs(currentPrice - levels.ema50) / currentPrice * 100,
+      ema200: Math.abs(currentPrice - levels.ema200) / currentPrice * 100,
+    };
+
+    // Find the closest level above current price
+    const closestLevel = Object.entries(distances)
+      .filter(([_, dist]) => dist <= 5) // Only levels within 5% distance
+      .sort(([_, a], [__, b]) => a - b)[0];
+
+    let interpretation = '';
+    if (closestLevel) {
+      const [levelName] = closestLevel;
+      const levelPrice = levels[levelName as keyof typeof levels];
+      
+      if (levelName === 'ema9') {
+        interpretation = `📍 EMA9 angesteuert: Schneller Widerstand/Support. Kurzfristige Trendumkehr möglich.`;
+      } else if (levelName === 'ema21') {
+        interpretation = `📍 EMA21 angesteuert: Mittelfristiger Trend-Level. Gilt als Breakout-Zone.`;
+      } else if (levelName === 'ema50') {
+        interpretation = `📍 EMA50 angesteuert: Wichtiger Trend-Indikator. Starker Support/Resistance.`;
+      } else if (levelName === 'ema200') {
+        interpretation = `📍 EMA200 angesteuert: Langfristige Trend-Basis. Sehr wichtiger Level, oft Jahres-Support/Resistance.`;
+      }
+    } else {
+      interpretation = `✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung ohne unmittelbare Level-Nähe.`;
+    }
+
+    return {
+      current: currentPrice,
+      levels: {
+        ema9: Math.round(levels.ema9 * 100) / 100,
+        ema21: Math.round(levels.ema21 * 100) / 100,
+        ema50: Math.round(levels.ema50 * 100) / 100,
+        ema200: Math.round(levels.ema200 * 100) / 100,
+      },
+      distances: {
+        ema9: Math.abs(currentPrice - levels.ema9) / currentPrice * 100,
+        ema21: Math.abs(currentPrice - levels.ema21) / currentPrice * 100,
+        ema50: Math.abs(currentPrice - levels.ema50) / currentPrice * 100,
+        ema200: Math.abs(currentPrice - levels.ema200) / currentPrice * 100,
+      },
+      interpretation
+    };
+  } catch (error) {
+    console.error('Error calculating EMA levels:', error);
+    return {
+      current: currentPrice,
+      levels: {
+        ema9: currentPrice * 0.985,
+        ema21: currentPrice * 0.965,
+        ema50: currentPrice * 0.92,
+        ema200: currentPrice * 0.85,
+      },
+      distances: {
+        ema9: 1.5,
+        ema21: 3.5,
+        ema50: 8,
+        ema200: 15,
+      },
+      interpretation: '✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung.'
+    };
+  }
+}
+

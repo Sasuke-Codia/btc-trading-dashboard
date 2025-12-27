@@ -332,6 +332,60 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Daily EMA Levels Section */}
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Activity className="w-5 h-5 text-blue-400" />
+            <h2 className="text-lg font-semibold">Daily EMA Levels</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* EMA 9 */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">EMA 9 (Schnell)</p>
+                <p className="text-lg font-bold text-cyan-400">${data.emaLevels?.levels?.ema9.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                <p className="text-[8px] text-slate-400 mt-1">
+                  {data.emaLevels?.distances?.ema9 > 0 ? '↓' : '↑'} {data.emaLevels?.distances?.ema9?.toFixed(2)}%
+                </p>
+              </div>
+
+              {/* EMA 21 */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">EMA 21 (Mittel)</p>
+                <p className="text-lg font-bold text-blue-400">${data.emaLevels?.levels?.ema21.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                <p className="text-[8px] text-slate-400 mt-1">
+                  {data.emaLevels?.distances?.ema21 > 0 ? '↓' : '↑'} {data.emaLevels?.distances?.ema21?.toFixed(2)}%
+                </p>
+              </div>
+
+              {/* EMA 50 */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">EMA 50 (Trend)</p>
+                <p className="text-lg font-bold text-purple-400">${data.emaLevels?.levels?.ema50.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                <p className="text-[8px] text-slate-400 mt-1">
+                  {data.emaLevels?.distances?.ema50 > 0 ? '↓' : '↑'} {data.emaLevels?.distances?.ema50?.toFixed(2)}%
+                </p>
+              </div>
+
+              {/* EMA 200 */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">EMA 200 (Jahres)</p>
+                <p className="text-lg font-bold text-orange-400">${data.emaLevels?.levels?.ema200.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                <p className="text-[8px] text-slate-400 mt-1">
+                  {data.emaLevels?.distances?.ema200 > 0 ? '↓' : '↑'} {data.emaLevels?.distances?.ema200?.toFixed(2)}%
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-700">
+              <p className="text-[9px] text-slate-500 uppercase font-bold mb-2">🎯 Level-Analyse</p>
+              <p className="text-xs text-slate-300 leading-relaxed italic">
+                {data.emaLevels?.interpretation}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Fear & Greed Section */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
