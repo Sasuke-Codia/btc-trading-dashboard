@@ -25,7 +25,7 @@ export async function GET() {
     const signals = calculateSignals(prices, onChain);
 
     // Berechne M2 zu BTC Verhältnis
-    const m2ToBtcRatio = (macro.m2Trillions * 1_000_000_000_000) / prices.usdt;
+    const m2ToBtcRatio = prices && prices.usdt ? (macro.m2Trillions * 1_000_000_000_000) / prices.usdt : 0;
 
     return NextResponse.json({
       prices,
