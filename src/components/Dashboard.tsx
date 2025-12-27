@@ -332,6 +332,111 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Fear & Greed Section */}
+        <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <TrendingUp className="w-5 h-5 text-green-400" />
+            <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-sm">Psychological State</span>
+              <span className={cn(
+                "font-bold",
+                data.sentiment.score > 0.6 ? "text-green-400" : data.sentiment.score < 0.4 ? "text-red-400" : "text-yellow-400"
+              )}>
+                {data.sentiment.label}
+              </span>
+            </div>
+            <div className="relative h-24 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className={cn(
+                  "w-20 h-20 rounded-full border-4 border-slate-800 animate-[spin_3s_linear_infinite]",
+                  data.sentiment.score > 0.6 ? "border-t-green-500" : data.sentiment.score < 0.4 ? "border-t-red-500" : "border-t-yellow-500"
+                )} />
+              </div>
+              <span className="text-3xl font-bold text-white">{(data.sentiment.score * 100).toFixed(0)}</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed italic">
+              {data.sentiment.summary}
+            </p>
+          </div>
+        </section>
+
+        {/* Macroeconomic Indicators */}
+        <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Cpu className="w-5 h-5 text-purple-400" />
+            <h2 className="text-lg font-semibold">Macro Indicators</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Inflation */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Inflation</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.inflationChange > 0 ? '📈' : data.macro.inflationChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.inflationChange).toFixed(1)}%
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-orange-400">{data.macro.inflationRate}%</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.inflationSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.inflationConsequence}</p>
+              </div>
+
+              {/* Fed Rate */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Fed Funds</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.fedRateChange > 0 ? '📈' : data.macro.fedRateChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.fedRateChange).toFixed(2)}%
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-red-400">{data.macro.fedRate}%</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.fedSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.fedConsequence}</p>
+              </div>
+
+              {/* M2 Expansion */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">M2 Expansion</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.m2Change > 0 ? '📈' : data.macro.m2Change < 0 ? '📉' : '➡️'} {Math.abs(data.macro.m2Change).toFixed(2)}T
+                  </span>
+                </div>
+                <p className="text-lg font-bold text-white">${data.macro.m2Trillions}T</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.m2Signal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.m2Consequence}</p>
+              </div>
+
+              {/* Gold Price */}
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Gold Price</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.goldPriceChange > 0 ? '📈' : data.macro.goldPriceChange < 0 ? '📉' : '➡️'} ${Math.abs(data.macro.goldPriceChange)}
+                  </span>
+                </div>
+                <p className="text-lg font-bold text-yellow-500">${data.macro.goldPrice}</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.goldSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.goldConsequence}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-slate-700">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">M2 to Gold Ratio</span>
+                <span className="font-mono text-white font-bold">{data.macro.m2ToGoldRatio.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">M2 to BTC Ratio</span>
+                <span className="font-mono text-white font-bold">{data.macro.m2ToBtcRatio.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Liquidation Heatmap Section */}
         <section className="col-span-1 md:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
@@ -438,111 +543,6 @@ export default function Dashboard() {
                 </div>
               </a>
             ))}
-          </div>
-        </section>
-
-        {/* Fear & Greed Section */}
-        <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="w-5 h-5 text-green-400" />
-            <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-sm">Psychological State</span>
-              <span className={cn(
-                "font-bold",
-                data.sentiment.score > 0.6 ? "text-green-400" : data.sentiment.score < 0.4 ? "text-red-400" : "text-yellow-400"
-              )}>
-                {data.sentiment.label}
-              </span>
-            </div>
-            <div className="relative h-24 flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className={cn(
-                  "w-20 h-20 rounded-full border-4 border-slate-800 animate-[spin_3s_linear_infinite]",
-                  data.sentiment.score > 0.6 ? "border-t-green-500" : data.sentiment.score < 0.4 ? "border-t-red-500" : "border-t-yellow-500"
-                )} />
-              </div>
-              <span className="text-3xl font-bold text-white">{(data.sentiment.score * 100).toFixed(0)}</span>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed italic">
-              {data.sentiment.summary}
-            </p>
-          </div>
-        </section>
-
-        {/* Macroeconomic Indicators */}
-        <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <Cpu className="w-5 h-5 text-purple-400" />
-            <h2 className="text-lg font-semibold">Macro Indicators</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              {/* Inflation */}
-              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="text-[10px] text-slate-500">Inflation</p>
-                  <span className="text-[8px] font-bold text-slate-400">
-                    {data.macro.inflationChange > 0 ? '📈' : data.macro.inflationChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.inflationChange).toFixed(1)}%
-                  </span>
-                </div>
-                <p className="text-xl font-bold text-orange-400">{data.macro.inflationRate}%</p>
-                <p className="text-[8px] text-slate-400 mt-1">{data.macro.inflationSignal}</p>
-                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.inflationConsequence}</p>
-              </div>
-
-              {/* Fed Rate */}
-              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="text-[10px] text-slate-500">Fed Funds</p>
-                  <span className="text-[8px] font-bold text-slate-400">
-                    {data.macro.fedRateChange > 0 ? '📈' : data.macro.fedRateChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.fedRateChange).toFixed(2)}%
-                  </span>
-                </div>
-                <p className="text-xl font-bold text-red-400">{data.macro.fedRate}%</p>
-                <p className="text-[8px] text-slate-400 mt-1">{data.macro.fedSignal}</p>
-                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.fedConsequence}</p>
-              </div>
-
-              {/* M2 Expansion */}
-              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="text-[10px] text-slate-500">M2 Expansion</p>
-                  <span className="text-[8px] font-bold text-slate-400">
-                    {data.macro.m2Change > 0 ? '📈' : data.macro.m2Change < 0 ? '📉' : '➡️'} {Math.abs(data.macro.m2Change).toFixed(2)}T
-                  </span>
-                </div>
-                <p className="text-lg font-bold text-white">${data.macro.m2Trillions}T</p>
-                <p className="text-[8px] text-slate-400 mt-1">{data.macro.m2Signal}</p>
-                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.m2Consequence}</p>
-              </div>
-
-              {/* Gold Price */}
-              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="text-[10px] text-slate-500">Gold Price</p>
-                  <span className="text-[8px] font-bold text-slate-400">
-                    {data.macro.goldPriceChange > 0 ? '📈' : data.macro.goldPriceChange < 0 ? '📉' : '➡️'} ${Math.abs(data.macro.goldPriceChange)}
-                  </span>
-                </div>
-                <p className="text-lg font-bold text-yellow-500">${data.macro.goldPrice}</p>
-                <p className="text-[8px] text-slate-400 mt-1">{data.macro.goldSignal}</p>
-                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.goldConsequence}</p>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-slate-700">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">M2 to Gold Ratio</span>
-                <span className="font-mono text-white font-bold">{data.macro.m2ToGoldRatio.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">M2 to BTC Ratio</span>
-                <span className="font-mono text-white font-bold">{data.macro.m2ToBtcRatio.toLocaleString()}</span>
-              </div>
-            </div>
           </div>
         </section>
 
