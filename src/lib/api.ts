@@ -217,24 +217,142 @@ export async function getMacroeconomicData() {
     // Aktuell um die 4,5% (dieser Wert sollte regelmäßig aktualisiert werden)
     const fedRate = 4.5;
 
+    // Mock Veränderungen zum Vortag (in der Realität würde man historische Daten verwenden)
+    const previousInflation = 3.2;
+    const previousFedRate = 4.5;
+    const previousGoldPrice = 2040;
+    const previousM2 = 20.3;
+
+    // Berechne Veränderungen
+    const inflationChange = inflationRate - previousInflation;
+    const fedRateChange = fedRate - previousFedRate;
+    const goldPriceChange = goldPrice - previousGoldPrice;
+    const m2Change = m2Approximation - previousM2;
+
+    // Generiere Signale/Interpretationen basierend auf Werten
+    const getInflationSignal = (rate: number, change: number) => {
+      if (rate > 4) return { 
+        signal: '🔴 Sehr hoch', 
+        consequence: '↳ Massive Flucht in Sachwerte (Gold, Bitcoin, Immobilien)' 
+      };
+      if (rate > 3) return { 
+        signal: '🟠 Erhöht', 
+        consequence: '↳ Geldfluss zu Gold & Bitcoin, Leidensdruck wächst' 
+      };
+      if (rate > 2) return { 
+        signal: '🟡 Moderat', 
+        consequence: '↳ Normales Umfeld, moderate Nachfrage für Hedge-Assets' 
+      };
+      return { 
+        signal: '🟢 Niedrig', 
+        consequence: '↳ Deflations-Risiko, Sparen & Kasse bevorzugt' 
+      };
+    };
+
+    const getFedRateSignal = (rate: number, change: number) => {
+      if (rate > 4) return { 
+        signal: '🔴 Restriktiv', 
+        consequence: '↳ Straffes Umfeld, Anleihen attraktiv, Aktien-Druck' 
+      };
+      if (rate > 3) return { 
+        signal: '🟠 Erhöht', 
+        consequence: '↳ USD stark, Kreditkosten hoch, Risk-Off Phase' 
+      };
+      if (rate > 1) return { 
+        signal: '🟡 Moderat', 
+        consequence: '↳ Neutrales Umfeld, Risikoapetit möglich' 
+      };
+      return { 
+        signal: '🟢 Locker', 
+        consequence: '↳ Geldexpansion, Rally-Umfeld für Risk-Assets' 
+      };
+    };
+
+    const getGoldSignal = (price: number, change: number) => {
+      if (price > 2100) return { 
+        signal: '🔴 Sehr hoch', 
+        consequence: '↳ Inflations-Hedge läuft, Angst-Index hoch' 
+      };
+      if (price > 2000) return { 
+        signal: '🟠 Hoch', 
+        consequence: '↳ Unsicherheit, sicherer Hafen gesucht' 
+      };
+      if (price > 1900) return { 
+        signal: '🟡 Normal', 
+        consequence: '↳ Stabile Bewertung, normales Umfeld' 
+      };
+      return { 
+        signal: '🟢 Niedrig', 
+        consequence: '↳ Risk-On Phase, USD-Stärke dominiert' 
+      };
+    };
+
+    const getM2Signal = (m2: number, change: number) => {
+      if (change > 1) return { 
+        signal: '🟢 Expanding', 
+        consequence: '↳ Gelddruckmaschine an, bullish für alle Assets' 
+      };
+      if (change > 0) return { 
+        signal: '🟡 Leicht steigend', 
+        consequence: '↳ Moderate Geldausweitung, gemischtes Signal' 
+      };
+      if (change > -0.5) return { 
+        signal: '🟠 Stagnant', 
+        consequence: '↳ Geldmenge stabil, normales Umfeld' 
+      };
+      return { 
+        signal: '🔴 Schrumpfend', 
+        consequence: '↳ Geld-Kontraktion, Kredit-Engpässe, bearish' 
+      };
+    };
+
+    const inflationSignal = getInflationSignal(inflationRate, inflationChange);
+    const fedSignal = getFedRateSignal(fedRate, fedRateChange);
+    const goldSignal = getGoldSignal(goldPrice, goldPriceChange);
+    const m2Signal = getM2Signal(m2Approximation, m2Change);
+
     return {
       m2Trillions: m2Approximation,
-      m2ToGoldRatio: (m2Approximation * 1_000_000_000_000) / (goldPrice * 31.1035), // Verhältnis zur Goldmenge
+      m2Change: Math.round(m2Change * 100) / 100,
+      m2ToGoldRatio: (m2Approximation * 1_000_000_000_000) / (goldPrice * 31.1035),
       m2ToBtcRatio: 0, // Wird in Dashboard berechnet mit aktuellem BTC Preis
       inflationRate: Math.round(inflationRate * 10) / 10,
+      inflationChange: Math.round(inflationChange * 10) / 10,
+      inflationSignal: inflationSignal.signal,
+      inflationConsequence: inflationSignal.consequence,
       fedRate: fedRate,
+      fedRateChange: fedRateChange,
+      fedSignal: fedSignal.signal,
+      fedConsequence: fedSignal.consequence,
       goldPrice: Math.round(goldPrice),
+      goldPriceChange: Math.round(goldPriceChange),
+      goldSignal: goldSignal.signal,
+      goldConsequence: goldSignal.consequence,
+      m2Signal: m2Signal.signal,
+      m2Consequence: m2Signal.consequence,
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
     console.error('Error fetching macroeconomic data:', error);
     return {
       m2Trillions: 20.5,
+      m2Change: 0.2,
       m2ToGoldRatio: 1200,
       m2ToBtcRatio: 0,
       inflationRate: 3.4,
+      inflationChange: 0.2,
+      inflationSignal: '🟠 Erhöht',
+      inflationConsequence: '↳ Geldfluss zu Gold & Bitcoin, Leidensdruck wächst',
       fedRate: 4.5,
+      fedRateChange: 0,
+      fedSignal: '🟠 Erhöht',
+      fedConsequence: '↳ USD stark, Kreditkosten hoch, Risk-Off Phase',
       goldPrice: 2050,
+      goldPriceChange: 10,
+      goldSignal: '🟠 Hoch',
+      goldConsequence: '↳ Unsicherheit, sicherer Hafen gesucht',
+      m2Signal: '🟢 Expanding',
+      m2Consequence: '↳ Gelddruckmaschine an, bullish für alle Assets',
       timestamp: new Date().toISOString(),
     };
   }

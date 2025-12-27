@@ -480,21 +480,56 @@ export default function Dashboard() {
           </div>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
+              {/* Inflation */}
               <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <p className="text-[10px] text-slate-500 mb-1">Inflation (Current)</p>
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Inflation</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.inflationChange > 0 ? '📈' : data.macro.inflationChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.inflationChange).toFixed(1)}%
+                  </span>
+                </div>
                 <p className="text-xl font-bold text-orange-400">{data.macro.inflationRate}%</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.inflationSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.inflationConsequence}</p>
               </div>
+
+              {/* Fed Rate */}
               <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <p className="text-[10px] text-slate-500 mb-1">Fed Funds Rate</p>
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Fed Funds</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.fedRateChange > 0 ? '📈' : data.macro.fedRateChange < 0 ? '📉' : '➡️'} {Math.abs(data.macro.fedRateChange).toFixed(2)}%
+                  </span>
+                </div>
                 <p className="text-xl font-bold text-red-400">{data.macro.fedRate}%</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.fedSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.fedConsequence}</p>
               </div>
+
+              {/* M2 Expansion */}
               <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <p className="text-[10px] text-slate-500 mb-1">M2 Expansion</p>
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">M2 Expansion</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.m2Change > 0 ? '📈' : data.macro.m2Change < 0 ? '📉' : '➡️'} {Math.abs(data.macro.m2Change).toFixed(2)}T
+                  </span>
+                </div>
                 <p className="text-lg font-bold text-white">${data.macro.m2Trillions}T</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.m2Signal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.m2Consequence}</p>
               </div>
+
+              {/* Gold Price */}
               <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
-                <p className="text-[10px] text-slate-500 mb-1">Gold Price</p>
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-[10px] text-slate-500">Gold Price</p>
+                  <span className="text-[8px] font-bold text-slate-400">
+                    {data.macro.goldPriceChange > 0 ? '📈' : data.macro.goldPriceChange < 0 ? '📉' : '➡️'} ${Math.abs(data.macro.goldPriceChange)}
+                  </span>
+                </div>
                 <p className="text-lg font-bold text-yellow-500">${data.macro.goldPrice}</p>
+                <p className="text-[8px] text-slate-400 mt-1">{data.macro.goldSignal}</p>
+                <p className="text-[7px] text-slate-500 italic mt-0.5">{data.macro.goldConsequence}</p>
               </div>
             </div>
 
@@ -512,7 +547,6 @@ export default function Dashboard() {
         </section>
 
       </main>
-
       <footer className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-900 text-center">
         <p className="text-slate-600 text-xs">
           Data provided by Bitget & Mempool.space. Not financial advice.
