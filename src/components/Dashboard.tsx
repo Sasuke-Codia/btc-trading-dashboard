@@ -386,34 +386,49 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Fear & Greed Section */}
+        {/* On-Chain Data */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="w-5 h-5 text-green-400" />
-            <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
+            <Cpu className="w-5 h-5 text-orange-400" />
+            <h2 className="text-lg font-semibold">On-Chain Metrics</h2>
           </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-sm">Psychological State</span>
-              <span className={cn(
-                "font-bold",
-                data.sentiment.score > 0.6 ? "text-green-400" : data.sentiment.score < 0.4 ? "text-red-400" : "text-yellow-400"
-              )}>
-                {data.sentiment.label}
-              </span>
-            </div>
-            <div className="relative h-24 flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className={cn(
-                  "w-20 h-20 rounded-full border-4 border-slate-800 animate-[spin_3s_linear_infinite]",
-                  data.sentiment.score > 0.6 ? "border-t-green-500" : data.sentiment.score < 0.4 ? "border-t-red-500" : "border-t-yellow-500"
-                )} />
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <Activity className="w-3 h-3" />
+                <span className="text-[10px] uppercase font-bold">Difficulty</span>
               </div>
-              <span className="text-3xl font-bold text-white">{(data.sentiment.score * 100).toFixed(0)}</span>
+              <p className="text-xl font-mono font-bold text-white">
+                {data.onChain?.difficulty ? (data.onChain.difficulty / 1e12).toFixed(2) : '--'}T
+              </p>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed italic">
-              {data.sentiment.summary}
-            </p>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <Clock className="w-3 h-3" />
+                <span className="text-[10px] uppercase font-bold">Block Height</span>
+              </div>
+              <p className="text-xl font-mono font-bold text-white">
+                {data.onChain.blockHeight.toLocaleString()}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <Gift className="w-3 h-3" />
+                <span className="text-[10px] uppercase font-bold">Block Reward</span>
+              </div>
+              <p className="text-xl font-mono font-bold text-white">
+                {data.onChain.reward} BTC
+              </p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <RefreshCw className="w-3 h-3" />
+                <span className="text-[10px] uppercase font-bold">Next Retarget</span>
+              </div>
+              <p className="text-sm font-mono text-slate-300">
+                {data.onChain.remainingBlocks} blocks left
+              </p>
+            </div>
           </div>
         </section>
 
@@ -491,49 +506,34 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* On-Chain Data */}
+        {/* Fear & Greed Section */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
-            <Cpu className="w-5 h-5 text-orange-400" />
-            <h2 className="text-lg font-semibold">On-Chain Metrics</h2>
+            <TrendingUp className="w-5 h-5 text-green-400" />
+            <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
           </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <Activity className="w-3 h-3" />
-                <span className="text-[10px] uppercase font-bold">Difficulty</span>
-              </div>
-              <p className="text-xl font-mono font-bold text-white">
-                {data.onChain?.difficulty ? (data.onChain.difficulty / 1e12).toFixed(2) : '--'}T
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-sm">Psychological State</span>
+              <span className={cn(
+                "font-bold",
+                data.sentiment.score > 0.6 ? "text-green-400" : data.sentiment.score < 0.4 ? "text-red-400" : "text-yellow-400"
+              )}>
+                {data.sentiment.label}
+              </span>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <Clock className="w-3 h-3" />
-                <span className="text-[10px] uppercase font-bold">Block Height</span>
+            <div className="relative h-24 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className={cn(
+                  "w-20 h-20 rounded-full border-4 border-slate-800 animate-[spin_3s_linear_infinite]",
+                  data.sentiment.score > 0.6 ? "border-t-green-500" : data.sentiment.score < 0.4 ? "border-t-red-500" : "border-t-yellow-500"
+                )} />
               </div>
-              <p className="text-xl font-mono font-bold text-white">
-                {data.onChain.blockHeight.toLocaleString()}
-              </p>
+              <span className="text-3xl font-bold text-white">{(data.sentiment.score * 100).toFixed(0)}</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <Gift className="w-3 h-3" />
-                <span className="text-[10px] uppercase font-bold">Block Reward</span>
-              </div>
-              <p className="text-xl font-mono font-bold text-white">
-                {data.onChain.reward} BTC
-              </p>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <RefreshCw className="w-3 h-3" />
-                <span className="text-[10px] uppercase font-bold">Next Retarget</span>
-              </div>
-              <p className="text-sm font-mono text-slate-300">
-                {data.onChain.remainingBlocks} blocks left
-              </p>
-            </div>
+            <p className="text-xs text-slate-400 leading-relaxed italic">
+              {data.sentiment.summary}
+            </p>
           </div>
         </section>
 
