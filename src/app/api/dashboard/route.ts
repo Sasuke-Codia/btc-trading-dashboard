@@ -6,21 +6,26 @@ import {
   getFearAndGreed, 
   calculateSignals,
   getEtfFlows,
-  getLiquidationData
+  getLiquidationData,
+  getMacroeconomicData
 } from '@/lib/api';
 
 export async function GET() {
   try {
-    const [prices, onChain, news, fng, etf, liquidations] = await Promise.all([
+    const [prices, onChain, news, fng, etf, liquidations, macro] = await Promise.all([
       getBitgetPrices(),
       getOnChainData(),
       getNews(),
       getFearAndGreed(),
       getEtfFlows(),
-      getLiquidationData()
+      getLiquidationData(),
+      getMacroeconomicData()
     ]);
 
     const signals = calculateSignals(prices, onChain);
+
+    // Berechne M2 zu BTC Verhältnis
+    const m2ToBtcRatio = (macro.m2Trillions * 1_000_000_000_000) / prices.usdt;
 
     return NextResponse.json({
       prices,
@@ -29,6 +34,10 @@ export async function GET() {
       signals,
       etf,
       liquidations,
+      macro: {
+        ...macro,
+        m2ToBtcRatio: Math.round(m2ToBtcRatio)
+      },
       sentiment: {
         score: fng?.score || 0.5,
         label: fng?.label || 'Neutral',

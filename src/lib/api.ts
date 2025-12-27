@@ -196,3 +196,47 @@ export function calculateSignals(priceData: any, onChainData: any) {
     }
   };
 }
+
+export async function getMacroeconomicData() {
+  try {
+    // Goldpreis (letzte 30 Tage Durchschnitt)
+    const goldRes = await axios.get('https://api.metals.live/v1/spot/gold');
+    const goldPrice = goldRes.data.gold;
+
+    // US Inflation Rate (WorldBank API - USA Inflation)
+    const inflationRes = await axios.get(
+      'https://api.worldbank.org/v2/country/USA/indicator/FP.CPI.TOTL.ZG?format=json&per_page=1'
+    );
+    const inflationRate = inflationRes.data?.[1]?.[0]?.value || 3.4; // Fallback
+
+    // Geldmenge M2 (approximation über Fed Daten - hier nehmen wir einen Mock-Wert)
+    // In der Realität würde man FRED API verwenden, aber das braucht einen API Key
+    const m2Approximation = 20.5; // Billionen USD (vereinfacht)
+
+    // Zentralbank Zinsatz (Fed Funds Rate approximation)
+    // Aktuell um die 4,5% (dieser Wert sollte regelmäßig aktualisiert werden)
+    const fedRate = 4.5;
+
+    return {
+      m2Trillions: m2Approximation,
+      m2ToGoldRatio: (m2Approximation * 1_000_000_000_000) / (goldPrice * 31.1035), // Verhältnis zur Goldmenge
+      m2ToBtcRatio: 0, // Wird in Dashboard berechnet mit aktuellem BTC Preis
+      inflationRate: Math.round(inflationRate * 10) / 10,
+      fedRate: fedRate,
+      goldPrice: Math.round(goldPrice),
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Error fetching macroeconomic data:', error);
+    return {
+      m2Trillions: 20.5,
+      m2ToGoldRatio: 1200,
+      m2ToBtcRatio: 0,
+      inflationRate: 3.4,
+      fedRate: 4.5,
+      goldPrice: 2050,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+

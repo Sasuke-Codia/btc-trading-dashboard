@@ -471,6 +471,46 @@ export default function Dashboard() {
             </p>
           </div>
         </section>
+
+        {/* Macroeconomic Indicators */}
+        <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Cpu className="w-5 h-5 text-purple-400" />
+            <h2 className="text-lg font-semibold">Macro Indicators</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">Inflation (Current)</p>
+                <p className="text-xl font-bold text-orange-400">{data.macro.inflationRate}%</p>
+              </div>
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">Fed Funds Rate</p>
+                <p className="text-xl font-bold text-red-400">{data.macro.fedRate}%</p>
+              </div>
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">M2 Expansion</p>
+                <p className="text-lg font-bold text-white">${data.macro.m2Trillions}T</p>
+              </div>
+              <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+                <p className="text-[10px] text-slate-500 mb-1">Gold Price</p>
+                <p className="text-lg font-bold text-yellow-500">${data.macro.goldPrice}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-slate-700">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">M2 to Gold Ratio</span>
+                <span className="font-mono text-white font-bold">{data.macro.m2ToGoldRatio.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">M2 to BTC Ratio</span>
+                <span className="font-mono text-white font-bold">{data.macro.m2ToBtcRatio.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       <footer className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-900 text-center">
