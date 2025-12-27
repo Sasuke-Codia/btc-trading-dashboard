@@ -437,42 +437,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Liquidation Heatmap Section */}
-        <section className="col-span-1 md:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <Layers className="w-5 h-5 text-red-400" />
-            <h2 className="text-lg font-semibold">Liquidation Heatmap (Clusters)</h2>
-          </div>
-          <div className="relative h-48 bg-slate-950/50 rounded-xl border border-slate-800 overflow-hidden flex items-center">
-            {/* Simple Heatmap Visualization */}
-            <div className="absolute inset-0 flex flex-col justify-between py-4 px-8">
-              {data.liquidations.map((liq: any, i: number) => (
-                <div key={i} className="flex items-center gap-4">
-                  <span className="text-[10px] font-mono text-slate-500 w-16">${liq.price.toLocaleString()}</span>
-                  <div className="flex-1 h-4 bg-slate-800 rounded-full overflow-hidden relative">
-                    <div 
-                      className={cn(
-                        "h-full transition-all duration-1000",
-                        liq.type === 'Short' ? "bg-red-500/40" : "bg-green-500/40"
-                      )}
-                      style={{ width: `${Math.min(liq.amount / 10, 100)}%` }}
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white">
-                      {liq.amount}M {liq.type}s
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-yellow-500/50 dashed shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-              <span className="absolute top-0 -translate-x-1/2 bg-yellow-500 text-[8px] text-black px-1 font-bold rounded">CURRENT PRICE</span>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-4 text-center italic">
-            Visualisierung zeigt Preiszonen mit hoher Liquidations-Dichte. Bitcoin tendiert dazu, diese Zonen "abzugrasen".
-          </p>
-        </section>
-
         {/* On-Chain Data */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
@@ -517,6 +481,42 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* Liquidation Heatmap Section */}
+        <section className="col-span-1 md:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Layers className="w-5 h-5 text-red-400" />
+            <h2 className="text-lg font-semibold">Liquidation Heatmap (Clusters)</h2>
+          </div>
+          <div className="relative h-48 bg-slate-950/50 rounded-xl border border-slate-800 overflow-hidden flex items-center">
+            {/* Simple Heatmap Visualization */}
+            <div className="absolute inset-0 flex flex-col justify-between py-4 px-8">
+              {data.liquidations.map((liq: any, i: number) => (
+                <div key={i} className="flex items-center gap-4">
+                  <span className="text-[10px] font-mono text-slate-500 w-16">${liq.price.toLocaleString()}</span>
+                  <div className="flex-1 h-4 bg-slate-800 rounded-full overflow-hidden relative">
+                    <div 
+                      className={cn(
+                        "h-full transition-all duration-1000",
+                        liq.type === 'Short' ? "bg-red-500/40" : "bg-green-500/40"
+                      )}
+                      style={{ width: `${Math.min(liq.amount / 10, 100)}%` }}
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-white">
+                      {liq.amount}M {liq.type}s
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-yellow-500/50 dashed shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+              <span className="absolute top-0 -translate-x-1/2 bg-yellow-500 text-[8px] text-black px-1 font-bold rounded">CURRENT PRICE</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-500 mt-4 text-center italic">
+            Visualisierung zeigt Preiszonen mit hoher Liquidations-Dichte. Bitcoin tendiert dazu, diese Zonen "abzugrasen".
+          </p>
         </section>
 
         {/* News Section */}
