@@ -103,9 +103,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Price & Derivatives Section */}
-        <section className="col-span-1 md:col-span-2 lg:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-blue-400" />
             <h2 className="text-lg font-semibold">Market & Derivatives</h2>
@@ -333,7 +333,7 @@ export default function Dashboard() {
         </section>
 
         {/* Fear & Greed Section */}
-        <section className="col-span-1 md:col-span-2 lg:col-span-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-green-400" />
             <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
@@ -364,7 +364,7 @@ export default function Dashboard() {
         </section>
 
         {/* Macroeconomic Indicators */}
-        <section className="col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <Cpu className="w-5 h-5 text-purple-400" />
             <h2 className="text-lg font-semibold">Macro Indicators</h2>
@@ -438,7 +438,7 @@ export default function Dashboard() {
         </section>
 
         {/* Liquidation Heatmap Section */}
-        <section className="col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-2 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <Layers className="w-5 h-5 text-red-400" />
             <h2 className="text-lg font-semibold">Liquidation Heatmap (Clusters)</h2>
@@ -474,7 +474,7 @@ export default function Dashboard() {
         </section>
 
         {/* On-Chain Data */}
-        <section className="col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <Cpu className="w-5 h-5 text-orange-400" />
             <h2 className="text-lg font-semibold">On-Chain Metrics</h2>
@@ -520,7 +520,7 @@ export default function Dashboard() {
         </section>
 
         {/* News Section */}
-        <section className="col-span-1 md:col-span-1 lg:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <Newspaper className="w-5 h-5 text-yellow-400" />
             <h2 className="text-lg font-semibold">Top 5 News</h2>
