@@ -664,15 +664,24 @@ export async function getMacroeconomicData() {
   }
 }
 
-export async function getChartTechnicalData(currentPrice: number) {
+export async function getChartTechnicalData(currentPrice: number, timeframe: '1day' | '4h' | '15m' = '1day') {
   try {
-    // Fetch 1-year daily klines from Bitget - USE 1day NOT 1d
+    // Configure timeframe parameters
+    const timeframeConfig: Record<string, { granularity: string; limit: number; period: string }> = {
+      '1day': { granularity: '1day', limit: 365, period: '1day' },
+      '4h': { granularity: '4h', limit: 168, period: '4h' },  // 7 days of 4h candles
+      '15m': { granularity: '15m', limit: 288, period: '15m' } // 2 days of 15m candles
+    };
+
+    const config = timeframeConfig[timeframe];
+
+    // Fetch klines from Bitget with timeframe-specific parameters
     const kinesRes = await axios.get(
-      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1day&limit=365`
+      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=${config.granularity}&limit=${config.limit}`
     );
 
     if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
-      throw new Error('No Bitget klines data');
+      throw new Error(`No Bitget klines data for ${timeframe}`);
     }
 
     // Parse OHLCV data
@@ -717,8 +726,9 @@ export async function getChartTechnicalData(currentPrice: number) {
 
     const rsi14 = calculateRSI(closes, 14);
 
-    // Calculate 52-week High/Low (support/resistance)
-    const last252 = closes.slice(-252);
+    // Calculate 52-week High/Low (support/resistance) - adjust for timeframe
+    const lookbackPeriod = timeframe === '1day' ? 252 : timeframe === '4h' ? 168 : 24;
+    const last252 = closes.slice(-lookbackPeriod);
     const weekHigh52 = Math.max(...last252);
     const weekLow52 = Math.min(...last252);
 
@@ -764,9 +774,10 @@ export async function getChartTechnicalData(currentPrice: number) {
     const bbUpper = sma20 + (stdDev * 2);
     const bbLower = sma20 - (stdDev * 2);
 
-    console.log('✅ Chart Technical Data: Live RSI:', rsi14.toFixed(2), 'MACD Hist:', macdHistogram.toFixed(2));
+    console.log(`✅ Chart Technical Data (${timeframe}): Live RSI:`, rsi14.toFixed(2), 'MACD Hist:', macdHistogram.toFixed(2));
 
     return {
+      timeframe,
       rsi14: Math.round(rsi14 * 100) / 100,
       macd: {
         line: Math.round(macdLine * 100) / 100,
@@ -793,10 +804,11 @@ export async function getChartTechnicalData(currentPrice: number) {
       interpretation: generateTechnicalInterpretation(rsi14, macdHistogram, currentPrice, pivot)
     };
   } catch (error) {
-    console.error('Error fetching chart technical data:', error);
+    console.error(`Error fetching chart technical data (${timeframe}):`, error);
     // Fallback: Return neutral technical data instead of null
-    console.log('⚠️ Chart Technical Data: Using fallback values');
+    console.log(`⚠️ Chart Technical Data (${timeframe}): Using fallback values`);
     return {
+      timeframe,
       rsi14: 50,
       macd: {
         line: 0,
@@ -820,7 +832,7 @@ export async function getChartTechnicalData(currentPrice: number) {
         low52: currentPrice * 0.85,
         range: 30
       },
-      interpretation: '⚠️ Fallback - API momentan nicht erreichbar'
+      interpretation: `⚠️ Fallback - API momentan nicht erreichbar (${timeframe})`
     };
   }
 }

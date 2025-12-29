@@ -386,110 +386,207 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Chart Technicals Section */}
-        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+        {/* Chart Technicals - Multi-Timeframe Section */}
+        <section className="col-span-3 md:col-span-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-xl font-bold">Chart Technicals</h2>
+            <h2 className="text-xl font-bold">Chart Technicals (Multi-Timeframe)</h2>
           </div>
-          <div className="space-y-5">
-            {/* RSI */}
-            <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">RSI-14</span>
-                <div className="text-right">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 1-Day Chart */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-cyan-400">1 Day</h3>
+              
+              {/* RSI */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">RSI-14</span>
                   <div className={cn(
-                    "text-2xl font-bold font-mono",
-                    data.chartTechnicals?.rsi14 > 70 ? "text-red-400" : data.chartTechnicals?.rsi14 < 30 ? "text-green-400" : "text-yellow-400"
+                    "text-xl font-bold font-mono",
+                    data.chartTechnicals?.['1day']?.rsi14 > 70 ? "text-red-400" : data.chartTechnicals?.['1day']?.rsi14 < 30 ? "text-green-400" : "text-yellow-400"
                   )}>
-                    {data.chartTechnicals?.rsi14?.toFixed(2)}
-                  </div>
-                  <div className={cn(
-                    "text-xs font-bold uppercase tracking-wider mt-1 px-2 py-1 rounded inline-block",
-                    data.chartTechnicals?.rsi14 > 70 ? "text-red-300 bg-red-500/10" : data.chartTechnicals?.rsi14 < 30 ? "text-green-300 bg-green-500/10" : "text-yellow-300 bg-yellow-500/10"
-                  )}>
-                    {data.chartTechnicals?.rsi14 > 70 ? "SHORT" : data.chartTechnicals?.rsi14 < 30 ? "LONG" : "NEUTRAL"}
+                    {data.chartTechnicals?.['1day']?.rsi14?.toFixed(2)}
                   </div>
                 </div>
-              </div>
-              <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div 
-                  className={cn(
-                    "h-full transition-all",
-                    data.chartTechnicals?.rsi14 > 70 ? "bg-red-500" : data.chartTechnicals?.rsi14 < 30 ? "bg-green-500" : "bg-yellow-500"
-                  )}
-                  style={{ width: `${data.chartTechnicals?.rsi14 || 0}%` }}
-                />
-              </div>
-              <p className="text-xs text-slate-400 mt-2">
-                {data.chartTechnicals?.rsi14 > 70 ? "🔴 Überkauft - SHORT Signal" : data.chartTechnicals?.rsi14 < 30 ? "🟢 Überverkauft - LONG Signal" : "🟡 Neutral - Abwarten"}
-              </p>
-            </div>
-
-            {/* MACD */}
-            <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">MACD</span>
-                <div className={cn(
-                  "text-xs font-bold uppercase tracking-wider px-2 py-1 rounded",
-                  data.chartTechnicals?.macd?.histogram > 0 ? "text-green-300 bg-green-500/10" : "text-red-300 bg-red-500/10"
-                )}>
-                  {data.chartTechnicals?.macd?.histogram > 0 ? "LONG" : "SHORT"}
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-400">Line:</span>
-                  <span className="text-white font-bold">{data.chartTechnicals?.macd?.line?.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-400">Signal:</span>
-                  <span className="text-white font-bold">{data.chartTechnicals?.macd?.signal?.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pt-2 border-t border-slate-700 font-mono">
-                  <span className="text-slate-400">Histogram:</span>
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full transition-all",
+                        data.chartTechnicals?.['1day']?.rsi14 > 70 ? "bg-red-500" : data.chartTechnicals?.['1day']?.rsi14 < 30 ? "bg-green-500" : "bg-yellow-500"
+                      )}
+                      style={{ width: `${data.chartTechnicals?.['1day']?.rsi14 || 0}%` }}
+                    />
+                  </div>
                   <span className={cn(
-                    "font-bold text-base",
-                    data.chartTechnicals?.macd?.histogram > 0 ? "text-green-400" : "text-red-400"
+                    "text-xs font-bold px-2 py-1 rounded whitespace-nowrap",
+                    data.chartTechnicals?.['1day']?.rsi14 > 70 ? "text-red-300 bg-red-500/10" : data.chartTechnicals?.['1day']?.rsi14 < 30 ? "text-green-300 bg-green-500/10" : "text-yellow-300 bg-yellow-500/10"
                   )}>
-                    {data.chartTechnicals?.macd?.histogram?.toFixed(2)}
+                    {data.chartTechnicals?.['1day']?.rsi14 > 70 ? "SHORT" : data.chartTechnicals?.['1day']?.rsi14 < 30 ? "LONG" : "NEUTRAL"}
                   </span>
                 </div>
               </div>
-            </div>
 
-            {/* Bollinger Bands */}
-            <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Bollinger Bands</span>
-                <div className={cn(
-                  "text-xs font-bold uppercase tracking-wider px-2 py-1 rounded",
-                  Math.abs(data.prices?.usdt - data.chartTechnicals?.bollingerBands?.middle) < (data.chartTechnicals?.bollingerBands?.upper - data.chartTechnicals?.bollingerBands?.middle) * 0.5 ? "text-yellow-300 bg-yellow-500/10" : data.prices?.usdt > data.chartTechnicals?.bollingerBands?.middle ? "text-red-300 bg-red-500/10" : "text-green-300 bg-green-500/10"
-                )}>
-                  {data.prices?.usdt > data.chartTechnicals?.bollingerBands?.upper ? "SHORT" : data.prices?.usdt < data.chartTechnicals?.bollingerBands?.lower ? "LONG" : "RANGE"}
+              {/* MACD */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">MACD</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.chartTechnicals?.['1day']?.macd?.histogram > 0 ? "text-green-300 bg-green-500/10" : "text-red-300 bg-red-500/10"
+                  )}>
+                    {data.chartTechnicals?.['1day']?.macd?.histogram > 0 ? "LONG" : "SHORT"}
+                  </span>
+                </div>
+                <div className="text-xs space-y-1 font-mono">
+                  <div className="flex justify-between"><span className="text-slate-400">H:</span><span className="text-white">{data.chartTechnicals?.['1day']?.macd?.histogram?.toFixed(0)}</span></div>
                 </div>
               </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-400">Upper:</span>
-                  <span className="font-mono text-red-400 font-bold">${data.chartTechnicals?.bollingerBands?.upper?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+
+              {/* Bollinger Bands */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">BB</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    Math.abs(data.prices?.usdt - data.chartTechnicals?.['1day']?.bollingerBands?.middle) < (data.chartTechnicals?.['1day']?.bollingerBands?.upper - data.chartTechnicals?.['1day']?.bollingerBands?.middle) * 0.5 ? "text-yellow-300 bg-yellow-500/10" : data.prices?.usdt > data.chartTechnicals?.['1day']?.bollingerBands?.middle ? "text-red-300 bg-red-500/10" : "text-green-300 bg-green-500/10"
+                  )}>
+                    {data.prices?.usdt > data.chartTechnicals?.['1day']?.bollingerBands?.upper ? "SHORT" : data.prices?.usdt < data.chartTechnicals?.['1day']?.bollingerBands?.lower ? "LONG" : "RANGE"}
+                  </span>
                 </div>
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-400">Middle:</span>
-                  <span className="font-mono text-yellow-400 font-bold">${data.chartTechnicals?.bollingerBands?.middle?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                </div>
-                <div className="flex justify-between font-mono">
-                  <span className="text-slate-400">Lower:</span>
-                  <span className="font-mono text-green-400 font-bold">${data.chartTechnicals?.bollingerBands?.lower?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                </div>
+                <div className="text-xs text-slate-300">{data.chartTechnicals?.['1day']?.interpretation}</div>
               </div>
             </div>
 
-            {/* Interpretation */}
-            <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
-              <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                {data.chartTechnicals?.interpretation}
-              </p>
+            {/* 4-Hour Chart */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-cyan-400">4 Hour</h3>
+              
+              {/* RSI */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">RSI-14</span>
+                  <div className={cn(
+                    "text-xl font-bold font-mono",
+                    data.chartTechnicals?.['4h']?.rsi14 > 70 ? "text-red-400" : data.chartTechnicals?.['4h']?.rsi14 < 30 ? "text-green-400" : "text-yellow-400"
+                  )}>
+                    {data.chartTechnicals?.['4h']?.rsi14?.toFixed(2)}
+                  </div>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full transition-all",
+                        data.chartTechnicals?.['4h']?.rsi14 > 70 ? "bg-red-500" : data.chartTechnicals?.['4h']?.rsi14 < 30 ? "bg-green-500" : "bg-yellow-500"
+                      )}
+                      style={{ width: `${data.chartTechnicals?.['4h']?.rsi14 || 0}%` }}
+                    />
+                  </div>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded whitespace-nowrap",
+                    data.chartTechnicals?.['4h']?.rsi14 > 70 ? "text-red-300 bg-red-500/10" : data.chartTechnicals?.['4h']?.rsi14 < 30 ? "text-green-300 bg-green-500/10" : "text-yellow-300 bg-yellow-500/10"
+                  )}>
+                    {data.chartTechnicals?.['4h']?.rsi14 > 70 ? "SHORT" : data.chartTechnicals?.['4h']?.rsi14 < 30 ? "LONG" : "NEUTRAL"}
+                  </span>
+                </div>
+              </div>
+
+              {/* MACD */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">MACD</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.chartTechnicals?.['4h']?.macd?.histogram > 0 ? "text-green-300 bg-green-500/10" : "text-red-300 bg-red-500/10"
+                  )}>
+                    {data.chartTechnicals?.['4h']?.macd?.histogram > 0 ? "LONG" : "SHORT"}
+                  </span>
+                </div>
+                <div className="text-xs space-y-1 font-mono">
+                  <div className="flex justify-between"><span className="text-slate-400">H:</span><span className="text-white">{data.chartTechnicals?.['4h']?.macd?.histogram?.toFixed(0)}</span></div>
+                </div>
+              </div>
+
+              {/* Bollinger Bands */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">BB</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    Math.abs(data.prices?.usdt - data.chartTechnicals?.['4h']?.bollingerBands?.middle) < (data.chartTechnicals?.['4h']?.bollingerBands?.upper - data.chartTechnicals?.['4h']?.bollingerBands?.middle) * 0.5 ? "text-yellow-300 bg-yellow-500/10" : data.prices?.usdt > data.chartTechnicals?.['4h']?.bollingerBands?.middle ? "text-red-300 bg-red-500/10" : "text-green-300 bg-green-500/10"
+                  )}>
+                    {data.prices?.usdt > data.chartTechnicals?.['4h']?.bollingerBands?.upper ? "SHORT" : data.prices?.usdt < data.chartTechnicals?.['4h']?.bollingerBands?.lower ? "LONG" : "RANGE"}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-300">{data.chartTechnicals?.['4h']?.interpretation}</div>
+              </div>
+            </div>
+
+            {/* 15-Minute Chart */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-cyan-400">15 Min</h3>
+              
+              {/* RSI */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">RSI-14</span>
+                  <div className={cn(
+                    "text-xl font-bold font-mono",
+                    data.chartTechnicals?.['15m']?.rsi14 > 70 ? "text-red-400" : data.chartTechnicals?.['15m']?.rsi14 < 30 ? "text-green-400" : "text-yellow-400"
+                  )}>
+                    {data.chartTechnicals?.['15m']?.rsi14?.toFixed(2)}
+                  </div>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className={cn(
+                        "h-full transition-all",
+                        data.chartTechnicals?.['15m']?.rsi14 > 70 ? "bg-red-500" : data.chartTechnicals?.['15m']?.rsi14 < 30 ? "bg-green-500" : "bg-yellow-500"
+                      )}
+                      style={{ width: `${data.chartTechnicals?.['15m']?.rsi14 || 0}%` }}
+                    />
+                  </div>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded whitespace-nowrap",
+                    data.chartTechnicals?.['15m']?.rsi14 > 70 ? "text-red-300 bg-red-500/10" : data.chartTechnicals?.['15m']?.rsi14 < 30 ? "text-green-300 bg-green-500/10" : "text-yellow-300 bg-yellow-500/10"
+                  )}>
+                    {data.chartTechnicals?.['15m']?.rsi14 > 70 ? "SHORT" : data.chartTechnicals?.['15m']?.rsi14 < 30 ? "LONG" : "NEUTRAL"}
+                  </span>
+                </div>
+              </div>
+
+              {/* MACD */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">MACD</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.chartTechnicals?.['15m']?.macd?.histogram > 0 ? "text-green-300 bg-green-500/10" : "text-red-300 bg-red-500/10"
+                  )}>
+                    {data.chartTechnicals?.['15m']?.macd?.histogram > 0 ? "LONG" : "SHORT"}
+                  </span>
+                </div>
+                <div className="text-xs space-y-1 font-mono">
+                  <div className="flex justify-between"><span className="text-slate-400">H:</span><span className="text-white">{data.chartTechnicals?.['15m']?.macd?.histogram?.toFixed(0)}</span></div>
+                </div>
+              </div>
+
+              {/* Bollinger Bands */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">BB</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    Math.abs(data.prices?.usdt - data.chartTechnicals?.['15m']?.bollingerBands?.middle) < (data.chartTechnicals?.['15m']?.bollingerBands?.upper - data.chartTechnicals?.['15m']?.bollingerBands?.middle) * 0.5 ? "text-yellow-300 bg-yellow-500/10" : data.prices?.usdt > data.chartTechnicals?.['15m']?.bollingerBands?.middle ? "text-red-300 bg-red-500/10" : "text-green-300 bg-green-500/10"
+                  )}>
+                    {data.prices?.usdt > data.chartTechnicals?.['15m']?.bollingerBands?.upper ? "SHORT" : data.prices?.usdt < data.chartTechnicals?.['15m']?.bollingerBands?.lower ? "LONG" : "RANGE"}
+                  </span>
+                </div>
+                <div className="text-xs text-slate-300">{data.chartTechnicals?.['15m']?.interpretation}</div>
+              </div>
             </div>
           </div>
         </section>

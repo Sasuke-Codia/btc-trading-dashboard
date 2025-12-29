@@ -22,14 +22,16 @@ export async function GET() {
     ]);
 
     // Fetch improved data sources in parallel
-    const [etf, liquidations, macro, chartTechnicals] = await Promise.all([
+    const [etf, liquidations, macro, chartTechnicals1d, chartTechnicals4h, chartTechnicals15m] = await Promise.all([
       getEtfFlowsImproved(),
       getLiquidationDataBybit(prices?.usdt || 87000),
       getMacroeconomicData(),
-      getChartTechnicalData(prices?.usdt || 87000)
+      getChartTechnicalData(prices?.usdt || 87000, '1day'),
+      getChartTechnicalData(prices?.usdt || 87000, '4h'),
+      getChartTechnicalData(prices?.usdt || 87000, '15m')
     ]);
 
-    const signals = calculateSignals(prices, onChain, chartTechnicals);
+    const signals = calculateSignals(prices, onChain, chartTechnicals1d);
     
     // Berechne EMA Levels (now from Bitget klines)
     const emaLevels = prices ? await getEMALevels(prices.usdt) : null;
@@ -49,7 +51,11 @@ export async function GET() {
         m2ToBtcRatio: Math.round(m2ToBtcRatio)
       },
       emaLevels,
-      chartTechnicals,
+      chartTechnicals: {
+        '1day': chartTechnicals1d,
+        '4h': chartTechnicals4h,
+        '15m': chartTechnicals15m
+      },
       sentiment: {
         score: fng?.score || 0.5,
         label: fng?.label || 'Neutral',
