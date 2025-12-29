@@ -29,7 +29,7 @@ export async function GET() {
       getChartTechnicalData(prices?.usdt || 87000)
     ]);
 
-    const signals = calculateSignals(prices, onChain);
+    const signals = calculateSignals(prices, onChain, chartTechnicals);
     
     // Berechne EMA Levels (now from Bitget klines)
     const emaLevels = prices ? await getEMALevels(prices.usdt) : null;

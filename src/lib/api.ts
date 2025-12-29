@@ -323,51 +323,163 @@ export async function getFearAndGreed() {
   }
 }
 
-export function calculateSignals(priceData: any, onChainData: any) {
+export function calculateSignals(priceData: any, onChainData: any, chartTechnicals: any = null) {
   const ratio = priceData?.ratio || 1;
   const currentPrice = priceData?.usdt || 0;
+  const fundingRate = priceData?.fundingRate || 0;
+  const volume24h = priceData?.volume24h || 0;
   
-  // Scalping Logic: Focus on Future/Spot Ratio and immediate price action
+  // ============================================================
+  // SCALPING LOGIC: Short-term based on Future/Spot Ratio & Funding
+  // ============================================================
   let scalpingProb = 0.5;
   let scalpingType: 'BUY' | 'SHORT' = 'BUY';
   let scalpingInterpretation = 'Neutral';
 
-  if (ratio > 1.0002) {
-    scalpingProb = 0.65 + (Math.min(ratio - 1.0002, 0.001) * 100);
+  // Factor 1: Future/Spot Ratio
+  let ratioScore = 0;
+  if (ratio > 1.0005) {
+    ratioScore = 0.70; // Strong bullish
     scalpingType = 'BUY';
-    scalpingInterpretation = 'Der Markt erwartet weitere Höhen (Longs dominieren). Profis stacken Long-Positionen.';
-  } else if (ratio < 0.9998) {
-    scalpingProb = 0.65 + (Math.min(0.9998 - ratio, 0.001) * 100);
+  } else if (ratio > 1.0002) {
+    ratioScore = 0.60; // Mild bullish
+    scalpingType = 'BUY';
+  } else if (ratio < 0.9995) {
+    ratioScore = 0.70; // Strong bearish
     scalpingType = 'SHORT';
-    scalpingInterpretation = 'Der Markt erwartet einen Rückgang (Shorts dominieren). Massive Liquidations bevorstehend.';
+  } else if (ratio < 0.9998) {
+    ratioScore = 0.60; // Mild bearish
+    scalpingType = 'SHORT';
   } else {
-    scalpingInterpretation = 'Markt ist ausgewogen. Abwarten auf nächsten Impuls.';
+    ratioScore = 0.50; // Neutral
+  }
+
+  // Factor 2: Funding Rate (indicator of leverage positions)
+  let fundingScore = 0.5;
+  if (fundingRate > 0.01) {
+    fundingScore = 0.65; // High positive funding = overbought
+    if (scalpingType === 'BUY') scalpingType = 'SHORT'; // Contrarian signal
+  } else if (fundingRate < -0.01) {
+    fundingScore = 0.65; // High negative funding = oversold
+    if (scalpingType === 'SHORT') scalpingType = 'BUY'; // Contrarian signal
+  }
+
+  // Factor 3: Volume indicator
+  let volumeScore = 0.5;
+  if (volume24h > 50e9) { // More than 50B volume
+    volumeScore = 0.65; // High volume = trend confirmation
+  }
+
+  // Combine all factors
+  scalpingProb = (ratioScore * 0.5 + fundingScore * 0.3 + volumeScore * 0.2);
+
+  // Interpretation
+  if (scalpingType === 'BUY' && scalpingProb > 0.65) {
+    scalpingInterpretation = '🟢 STARK BULLISH: Profis stacken Longs. Futures > Spot. Breakout erwartet.';
+  } else if (scalpingType === 'BUY') {
+    scalpingInterpretation = '🟡 MILD BULLISH: Schwache Long-Dominanz. Vorsicht vor Liquidationen.';
+  } else if (scalpingType === 'SHORT' && scalpingProb > 0.65) {
+    scalpingInterpretation = '🔴 STARK BEARISH: Massive Short-Positionen. Liquidationen bevorstehend!';
+  } else if (scalpingType === 'SHORT') {
+    scalpingInterpretation = '🟠 MILD BEARISH: Leichte Short-Dominanz. Rückgang möglich.';
+  } else {
+    scalpingInterpretation = '⚪ NEUTRAL: Markt ausgewogen. Abwarten auf nächsten Impuls.';
+  }
+
+  // ============================================================
+  // SWING LOGIC: Medium-term based on On-Chain Health + Chart Technicals
+  // ============================================================
+  let swingProb = 0.5;
+  let swingType: 'BUY' | 'SHORT' = 'BUY';
+  let swingInterpretation = 'Neutral';
+
+  // Factor 1: On-Chain Health (Difficulty indicates network strength)
+  let onChainScore = 0.5;
+  if (onChainData?.difficulty && onChainData.difficulty > 80e12) {
+    onChainScore = 0.70; // Strong network = bullish long-term
+    swingType = 'BUY';
+  } else if (onChainData?.difficulty && onChainData.difficulty < 60e12) {
+    onChainScore = 0.60; // Weak network = bearish
+    swingType = 'SHORT';
+  }
+
+  // Factor 2: RSI (if chart technicals available)
+  let rsiScore = 0.5;
+  if (chartTechnicals?.rsi14) {
+    if (chartTechnicals.rsi14 > 70) {
+      rsiScore = 0.65; // Overbought = prepare for pullback
+      swingType = 'SHORT';
+    } else if (chartTechnicals.rsi14 > 60) {
+      rsiScore = 0.60; // Strong uptrend
+      swingType = 'BUY';
+    } else if (chartTechnicals.rsi14 < 30) {
+      rsiScore = 0.70; // Oversold = strong buying opportunity
+      swingType = 'BUY';
+    } else if (chartTechnicals.rsi14 < 40) {
+      rsiScore = 0.60; // Weakness
+      swingType = 'SHORT';
+    }
+  }
+
+  // Factor 3: MACD (if chart technicals available)
+  let macdScore = 0.5;
+  if (chartTechnicals?.macd) {
+    if (chartTechnicals.macd.histogram > 0 && chartTechnicals.macd.line > chartTechnicals.macd.signal) {
+      macdScore = 0.70; // Strong bullish
+      swingType = 'BUY';
+    } else if (chartTechnicals.macd.histogram < 0 && chartTechnicals.macd.line < chartTechnicals.macd.signal) {
+      macdScore = 0.70; // Strong bearish
+      swingType = 'SHORT';
+    } else {
+      macdScore = 0.50; // Divergence
+    }
+  }
+
+  // Combine swing factors
+  swingProb = (onChainScore * 0.35 + rsiScore * 0.35 + macdScore * 0.30);
+
+  // Swing Interpretation
+  if (swingType === 'BUY' && swingProb > 0.65) {
+    swingInterpretation = '🟢 STARK BULLISH: On-Chain gesund, RSI bullish, MACD positiv. Bull-Markt.';
+  } else if (swingType === 'BUY') {
+    swingInterpretation = '🟡 MILD BULLISH: Trend unterstützt. Nachhaltige Gewinne möglich.';
+  } else if (swingType === 'SHORT' && swingProb > 0.65) {
+    swingInterpretation = '🔴 STARK BEARISH: On-Chain schwach, RSI überkauft, MACD negativ. Warnung!';
+  } else if (swingType === 'SHORT') {
+    swingInterpretation = '🟠 MILD BEARISH: Trend-Wechsel signalisiert. Vorsicht.';
+  } else {
+    swingInterpretation = '⚪ NEUTRAL: Keine klare Tendenz. Abwarten.';
   }
 
   // Calculate Support & Resistance Levels (using psychological levels & Fibonacci)
-  const nextResistance1 = Math.ceil(currentPrice / 1000) * 1000; // Next round thousand
-  const nextResistance2 = nextResistance1 + 5000; // 5k above
-  const nextSupport1 = Math.floor(currentPrice / 1000) * 1000; // Previous round thousand
-  const nextSupport2 = nextSupport1 - 5000; // 5k below
+  const nextResistance1 = Math.ceil(currentPrice / 1000) * 1000;
+  const nextResistance2 = nextResistance1 + 5000;
+  const nextSupport1 = Math.floor(currentPrice / 1000) * 1000;
+  const nextSupport2 = nextSupport1 - 5000;
 
   const distanceToR1 = ((nextResistance1 - currentPrice) / currentPrice) * 100;
   const distanceToS1 = ((currentPrice - nextSupport1) / currentPrice) * 100;
-
-  // Swing Logic: Focus on On-Chain Health (Difficulty & Reward)
-  const swingProb = 0.68;
-  const swingType: 'BUY' | 'SHORT' = 'BUY';
-  const swingInterpretation = 'Long-term Trend ist stabil. On-Chain Health ist gesund für Bull-Markt.';
 
   return {
     scalping: {
       type: scalpingType,
       probability: Math.min(Math.round(scalpingProb * 100), 98),
-      interpretation: scalpingInterpretation
+      interpretation: scalpingInterpretation,
+      factors: {
+        futureSpotRatio: ratio,
+        fundingRate: (fundingRate * 100).toFixed(4) + '%',
+        volume24h: (volume24h / 1e9).toFixed(2) + 'B'
+      }
     },
     swing: {
       type: swingType,
-      probability: Math.round(swingProb * 100),
-      interpretation: swingInterpretation
+      probability: Math.min(Math.round(swingProb * 100), 98),
+      interpretation: swingInterpretation,
+      factors: {
+        onChainDifficulty: onChainData?.difficulty ? (onChainData.difficulty / 1e12).toFixed(2) + 'T' : 'N/A',
+        rsi14: chartTechnicals?.rsi14 ? chartTechnicals.rsi14.toFixed(2) : 'N/A',
+        macd: chartTechnicals?.macd ? 'Histogram: ' + chartTechnicals.macd.histogram.toFixed(2) : 'N/A'
+      }
     },
     levels: {
       resistance: [
