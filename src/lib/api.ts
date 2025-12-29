@@ -542,17 +542,251 @@ export async function getMacroeconomicData() {
   }
 }
 
-export async function getEMALevels(currentPrice: number) {
+export async function getChartTechnicalData(currentPrice: number) {
   try {
-    // Vereinfachte EMA-Level Berechnung basierend auf aktuellen Preis
-    // In Produktion würde man historische Daten verwenden
+    // Fetch 1-year daily klines from Bitget
+    const kinesRes = await axios.get(
+      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
+    );
+
+    if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
+      throw new Error('No Bitget klines data');
+    }
+
+    // Parse OHLCV data
+    const candles = kinesRes.data.data.reverse().map((candle: string[]) => ({
+      timestamp: parseInt(candle[0]),
+      open: parseFloat(candle[1]),
+      high: parseFloat(candle[2]),
+      low: parseFloat(candle[3]),
+      close: parseFloat(candle[4]),
+      volume: parseFloat(candle[5])
+    }));
+
+    const closes = candles.map(c => c.close);
+    const highs = candles.map(c => c.high);
+    const lows = candles.map(c => c.low);
+
+    // Calculate RSI (Relative Strength Index) - 14 period
+    const calculateRSI = (prices: number[], period: number = 14): number => {
+      const changes = [];
+      for (let i = 1; i < prices.length; i++) {
+        changes.push(prices[i] - prices[i - 1]);
+      }
+
+      let gains = 0, losses = 0;
+      for (let i = 0; i < period; i++) {
+        if (changes[i] > 0) gains += changes[i];
+        else losses += Math.abs(changes[i]);
+      }
+
+      let avgGain = gains / period;
+      let avgLoss = losses / period;
+
+      for (let i = period; i < changes.length; i++) {
+        const change = changes[i];
+        avgGain = (avgGain * (period - 1) + (change > 0 ? change : 0)) / period;
+        avgLoss = (avgLoss * (period - 1) + (change < 0 ? Math.abs(change) : 0)) / period;
+      }
+
+      const rs = avgGain / avgLoss;
+      return 100 - 100 / (1 + rs);
+    };
+
+    const rsi14 = calculateRSI(closes, 14);
+
+    // Calculate 52-week High/Low (support/resistance)
+    const last252 = closes.slice(-252);
+    const weekHigh52 = Math.max(...last252);
+    const weekLow52 = Math.min(...last252);
+
+    // Calculate Pivot Points (classic formula)
+    const lastClose = closes[closes.length - 1];
+    const lastHigh = highs[highs.length - 1];
+    const lastLow = lows[lows.length - 1];
+
+    const pivot = (lastHigh + lastLow + lastClose) / 3;
+    const resistance1 = (2 * pivot) - lastLow;
+    const support1 = (2 * pivot) - lastHigh;
+    const resistance2 = pivot + (lastHigh - lastLow);
+    const support2 = pivot - (lastHigh - lastLow);
+
+    // Calculate Moving Average Convergence Divergence (MACD)
+    const calculateEMA = (prices: number[], period: number): number => {
+      const k = 2 / (period + 1);
+      let ema = prices.slice(0, period).reduce((a, b) => a + b, 0) / period;
+      for (let i = period; i < prices.length; i++) {
+        ema = prices[i] * k + ema * (1 - k);
+      }
+      return ema;
+    };
+
+    const ema12 = calculateEMA(closes, 12);
+    const ema26 = calculateEMA(closes, 26);
+    const macdLine = ema12 - ema26;
+
+    // Signal line (9-period EMA of MACD)
+    const macdValues = [];
+    for (let i = 25; i < closes.length; i++) {
+      const e12 = calculateEMA(closes.slice(0, i + 1), 12);
+      const e26 = calculateEMA(closes.slice(0, i + 1), 26);
+      macdValues.push(e12 - e26);
+    }
+    const signalLine = calculateEMA(macdValues, 9);
+    const macdHistogram = macdLine - signalLine;
+
+    // Bollinger Bands (20-period SMA, 2 std dev)
+    const sma20 = closes.slice(-20).reduce((a, b) => a + b, 0) / 20;
+    const variance = closes.slice(-20).reduce((sum, price) => sum + Math.pow(price - sma20, 2), 0) / 20;
+    const stdDev = Math.sqrt(variance);
+    const bbUpper = sma20 + (stdDev * 2);
+    const bbLower = sma20 - (stdDev * 2);
+
+    return {
+      rsi14: Math.round(rsi14 * 100) / 100,
+      macd: {
+        line: Math.round(macdLine * 100) / 100,
+        signal: Math.round(signalLine * 100) / 100,
+        histogram: Math.round(macdHistogram * 100) / 100
+      },
+      bollingerBands: {
+        upper: Math.round(bbUpper * 100) / 100,
+        middle: Math.round(sma20 * 100) / 100,
+        lower: Math.round(bbLower * 100) / 100
+      },
+      pivotPoints: {
+        resistance2: Math.round(resistance2 * 100) / 100,
+        resistance1: Math.round(resistance1 * 100) / 100,
+        pivot: Math.round(pivot * 100) / 100,
+        support1: Math.round(support1 * 100) / 100,
+        support2: Math.round(support2 * 100) / 100
+      },
+      yearHighLow: {
+        high52: Math.round(weekHigh52 * 100) / 100,
+        low52: Math.round(weekLow52 * 100) / 100,
+        range: Math.round(((weekHigh52 - weekLow52) / currentPrice) * 10000) / 100 // percentage
+      },
+      interpretation: generateTechnicalInterpretation(rsi14, macdHistogram, currentPrice, pivot)
+    };
+  } catch (error) {
+    console.error('Error fetching chart technical data:', error);
+    return null;
+  }
+}
+
+function generateTechnicalInterpretation(rsi: number, macdHist: number, price: number, pivot: number): string {
+  let signals = [];
+
+  if (rsi > 70) signals.push('🔴 Überkauft (RSI > 70)');
+  else if (rsi < 30) signals.push('🟢 Überverkauft (RSI < 30)');
+  else signals.push('🟡 Neutral (RSI zwischen 30-70)');
+
+  if (macdHist > 0) signals.push('📈 MACD bullish');
+  else signals.push('📉 MACD bearish');
+
+  if (price > pivot) signals.push('↗️ Über Pivot Point');
+  else signals.push('↘️ Unter Pivot Point');
+
+  return signals.join(' | ');
+}
+  try {
+    // Fetch 1-year daily OHLC data from Bitget API
+    const kinesRes = await axios.get(
+      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
+    );
+
+    if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
+      throw new Error('No Bitget klines data received');
+    }
+
+    // Extract closing prices from Bitget klines
+    // Bitget returns: [timestamp, open, high, low, close, volume, quoteVolume]
+    const closePrices = kinesRes.data.data.map((candle: string[]) => parseFloat(candle[4])).reverse();
+
+    // Calculate EMAs using Exponential Moving Average formula
+    const calculateEMA = (prices: number[], period: number): number => {
+      const k = 2 / (period + 1);
+      
+      // Simple Moving Average for first period
+      let ema = prices.slice(0, period).reduce((sum, price) => sum + price, 0) / period;
+      
+      // Apply EMA formula to remaining prices
+      for (let i = period; i < prices.length; i++) {
+        ema = prices[i] * k + ema * (1 - k);
+      }
+      return ema;
+    };
+
+    // Calculate all EMA levels
+    const ema9 = calculateEMA(closePrices, 9);
+    const ema21 = calculateEMA(closePrices, 21);
+    const ema50 = calculateEMA(closePrices, 50);
+    const ema200 = calculateEMA(closePrices, 200);
+
+    const levels = {
+      ema9,
+      ema21,
+      ema50,
+      ema200
+    };
+
+    // Calculate distance percentages from current price
+    const distances = {
+      ema9: Math.abs(currentPrice - ema9) / currentPrice * 100,
+      ema21: Math.abs(currentPrice - ema21) / currentPrice * 100,
+      ema50: Math.abs(currentPrice - ema50) / currentPrice * 100,
+      ema200: Math.abs(currentPrice - ema200) / currentPrice * 100,
+    };
+
+    // Find closest level within 5%
+    const closestLevel = Object.entries(distances)
+      .filter(([_, dist]) => dist <= 5)
+      .sort(([_, a], [__, b]) => a - b)[0];
+
+    let interpretation = '';
+    if (closestLevel) {
+      const [levelName] = closestLevel;
+      
+      if (levelName === 'ema9') {
+        interpretation = `📍 EMA9 angesteuert (${(distances.ema9).toFixed(2)}%): Schneller Support/Resistance. Kurzfristige Trendumkehr oder Breakout möglich.`;
+      } else if (levelName === 'ema21') {
+        interpretation = `📍 EMA21 angesteuert (${(distances.ema21).toFixed(2)}%): Mittelfristiger Trend-Level. Klassische Breakout-Zone für Profis.`;
+      } else if (levelName === 'ema50') {
+        interpretation = `📍 EMA50 angesteuert (${(distances.ema50).toFixed(2)}%): Wichtiger Trend-Indikator. Starker Support/Resistance Level mit hohem Volumen.`;
+      } else if (levelName === 'ema200') {
+        interpretation = `📍 EMA200 angesteuert (${(distances.ema200).toFixed(2)}%): Langfristige Trend-Basis. Sehr wichtiger Level - oft Jahres-Support/Resistance.`;
+      }
+    } else {
+      interpretation = `✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung ohne unmittelbare technische Level-Nähe.`;
+    }
+
+    return {
+      current: currentPrice,
+      levels: {
+        ema9: Math.round(ema9 * 100) / 100,
+        ema21: Math.round(ema21 * 100) / 100,
+        ema50: Math.round(ema50 * 100) / 100,
+        ema200: Math.round(ema200 * 100) / 100,
+      },
+      distances: {
+        ema9: Math.abs(currentPrice - ema9) / currentPrice * 100,
+        ema21: Math.abs(currentPrice - ema21) / currentPrice * 100,
+        ema50: Math.abs(currentPrice - ema50) / currentPrice * 100,
+        ema200: Math.abs(currentPrice - ema200) / currentPrice * 100,
+      },
+      interpretation,
+      source: 'Bitget 365-day OHLC data',
+      lastCandle: new Date(parseInt(kinesRes.data.data[0][0])).toISOString()
+    };
+  } catch (error) {
+    console.error('Error fetching Bitget EMA data:', error);
     
-    // Typische EMA-Level (als Prozentsätze vom Preis)
+    // Fallback to simplified calculation if Bitget API fails
     const emaOffsets = {
-      ema9: -0.015,   // -1.5% (schnell, Support)
-      ema21: -0.035,  // -3.5% 
-      ema50: -0.08,   // -8%
-      ema200: -0.15   // -15% (langsam, wichtiger Support)
+      ema9: -0.015,
+      ema21: -0.035,
+      ema50: -0.08,
+      ema200: -0.15
     };
 
     const levels = {
@@ -561,37 +795,6 @@ export async function getEMALevels(currentPrice: number) {
       ema50: currentPrice * (1 + emaOffsets.ema50),
       ema200: currentPrice * (1 + emaOffsets.ema200),
     };
-
-    // Determine closest level and its meaning
-    const distances = {
-      ema9: Math.abs(currentPrice - levels.ema9) / currentPrice * 100,
-      ema21: Math.abs(currentPrice - levels.ema21) / currentPrice * 100,
-      ema50: Math.abs(currentPrice - levels.ema50) / currentPrice * 100,
-      ema200: Math.abs(currentPrice - levels.ema200) / currentPrice * 100,
-    };
-
-    // Find the closest level above current price
-    const closestLevel = Object.entries(distances)
-      .filter(([_, dist]) => dist <= 5) // Only levels within 5% distance
-      .sort(([_, a], [__, b]) => a - b)[0];
-
-    let interpretation = '';
-    if (closestLevel) {
-      const [levelName] = closestLevel;
-      const levelPrice = levels[levelName as keyof typeof levels];
-      
-      if (levelName === 'ema9') {
-        interpretation = `📍 EMA9 angesteuert: Schneller Widerstand/Support. Kurzfristige Trendumkehr möglich.`;
-      } else if (levelName === 'ema21') {
-        interpretation = `📍 EMA21 angesteuert: Mittelfristiger Trend-Level. Gilt als Breakout-Zone.`;
-      } else if (levelName === 'ema50') {
-        interpretation = `📍 EMA50 angesteuert: Wichtiger Trend-Indikator. Starker Support/Resistance.`;
-      } else if (levelName === 'ema200') {
-        interpretation = `📍 EMA200 angesteuert: Langfristige Trend-Basis. Sehr wichtiger Level, oft Jahres-Support/Resistance.`;
-      }
-    } else {
-      interpretation = `✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung ohne unmittelbare Level-Nähe.`;
-    }
 
     return {
       current: currentPrice,
@@ -602,30 +805,13 @@ export async function getEMALevels(currentPrice: number) {
         ema200: Math.round(levels.ema200 * 100) / 100,
       },
       distances: {
-        ema9: Math.abs(currentPrice - levels.ema9) / currentPrice * 100,
-        ema21: Math.abs(currentPrice - levels.ema21) / currentPrice * 100,
-        ema50: Math.abs(currentPrice - levels.ema50) / currentPrice * 100,
-        ema200: Math.abs(currentPrice - levels.ema200) / currentPrice * 100,
-      },
-      interpretation
-    };
-  } catch (error) {
-    console.error('Error calculating EMA levels:', error);
-    return {
-      current: currentPrice,
-      levels: {
-        ema9: currentPrice * 0.985,
-        ema21: currentPrice * 0.965,
-        ema50: currentPrice * 0.92,
-        ema200: currentPrice * 0.85,
-      },
-      distances: {
         ema9: 1.5,
         ema21: 3.5,
         ema50: 8,
         ema200: 15,
       },
-      interpretation: '✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung.'
+      interpretation: '✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung.',
+      source: 'Fallback calculation'
     };
   }
 }
