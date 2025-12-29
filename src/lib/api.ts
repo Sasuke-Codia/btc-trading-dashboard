@@ -852,7 +852,123 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
 
   return signals.join(' | ');
 }
-  export async function getEMALevels(currentPrice: number) {
+  export async function getPointOfInterestAndControl(currentPrice: number, timeframe: '1day' | '4h' | '15m' = '1day') {
+  try {
+    // Configure timeframe parameters
+    const timeframeConfig: Record<string, { granularity: string; limit: number }> = {
+      '1day': { granularity: '1day', limit: 365 },
+      '4h': { granularity: '4h', limit: 168 },
+      '15m': { granularity: '15m', limit: 288 }
+    };
+
+    const config = timeframeConfig[timeframe];
+
+    // Fetch klines from Bitget
+    const kinesRes = await axios.get(
+      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=${config.granularity}&limit=${config.limit}`
+    );
+
+    if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
+      throw new Error(`No Bitget klines data for ${timeframe}`);
+    }
+
+    // Parse klines data: [timestamp, open, high, low, close, volume, quoteVolume]
+    const candles = kinesRes.data.data.reverse().map((candle: string[]) => ({
+      close: parseFloat(candle[4]),
+      volume: parseFloat(candle[5])
+    }));
+
+    // Calculate Point of Control (POC) - price with highest volume
+    // Group prices into bins and find the bin with highest cumulative volume
+    const binSize = currentPrice * 0.001; // 0.1% of current price as bin size
+    const volumeBins: Record<number, number> = {};
+
+    candles.forEach(candle => {
+      const binKey = Math.floor(candle.close / binSize) * binSize;
+      volumeBins[binKey] = (volumeBins[binKey] || 0) + candle.volume;
+    });
+
+    let pocPrice = currentPrice;
+    let maxVolume = 0;
+    for (const [price, volume] of Object.entries(volumeBins)) {
+      if (parseFloat(volume as any) > maxVolume) {
+        maxVolume = parseFloat(volume as any);
+        pocPrice = parseFloat(price);
+      }
+    }
+
+    // Calculate Point of Interest (POI) - multiple significant price levels
+    // Using Volume Weighted Average Price (VWAP) and high volume clusters
+    let totalVolumeWeightedPrice = 0;
+    let totalVolume = 0;
+
+    candles.forEach(candle => {
+      totalVolumeWeightedPrice += candle.close * candle.volume;
+      totalVolume += candle.volume;
+    });
+
+    const vwap = totalVolumeWeightedPrice / totalVolume;
+
+    // Find top 3 volume clusters as POI levels
+    const sortedBins = Object.entries(volumeBins)
+      .map(([price, vol]) => ({ price: parseFloat(price), volume: vol as number }))
+      .sort((a, b) => b.volume - a.volume)
+      .slice(0, 3);
+
+    const poiLevels = sortedBins.map(bin => bin.price);
+
+    // Calculate distances from current price
+    const pocDistance = Math.abs(currentPrice - pocPrice) / currentPrice * 100;
+    const vwapDistance = Math.abs(currentPrice - vwap) / currentPrice * 100;
+
+    // Generate interpretation
+    let interpretation = '';
+    if (pocDistance < 1) {
+      interpretation = `🎯 POC sehr nah: Starker Support/Resistance auf ${pocPrice.toFixed(0)}`;
+    } else if (pocDistance < 2) {
+      interpretation = `📍 POC nah: Wichtiges Level auf ${pocPrice.toFixed(0)}`;
+    } else if (pocDistance < 5) {
+      interpretation = `📊 POC erreichbar: Level bei ${pocPrice.toFixed(0)}`;
+    } else {
+      interpretation = `📈 POC weit: Erstes Ziel auf ${poiLevels[0]?.toFixed(0) || 'N/A'}`;
+    }
+
+    console.log(`✅ POI/POC (${timeframe}): POC=${pocPrice.toFixed(0)}, VWAP=${vwap.toFixed(0)}`);
+
+    return {
+      timeframe,
+      pointOfControl: {
+        price: Math.round(pocPrice * 100) / 100,
+        distance: Math.round(pocDistance * 100) / 100,
+        volume: Math.round(maxVolume)
+      },
+      volumeWeightedAvgPrice: Math.round(vwap * 100) / 100,
+      vwapDistance: Math.round(vwapDistance * 100) / 100,
+      pointsOfInterest: poiLevels.map(p => Math.round(p * 100) / 100),
+      interpretation,
+      source: `Bitget ${timeframe} klines with volume analysis`
+    };
+  } catch (error) {
+    console.error(`Error fetching POI/POC data (${timeframe}):`, error);
+    console.log(`⚠️ POI/POC (${timeframe}): Using fallback values`);
+    
+    return {
+      timeframe,
+      pointOfControl: {
+        price: currentPrice,
+        distance: 0,
+        volume: 0
+      },
+      volumeWeightedAvgPrice: currentPrice,
+      vwapDistance: 0,
+      pointsOfInterest: [currentPrice * 1.02, currentPrice * 0.98, currentPrice * 1.05],
+      interpretation: `⚠️ Fallback - API momentan nicht erreichbar (${timeframe})`,
+      source: 'Fallback calculation'
+    };
+  }
+}
+
+export async function getEMALevels(currentPrice: number) {
     try {
       // Fetch 1-year daily OHLC data from Bitget API - USE 1day NOT 1d
       const kinesRes = await axios.get(

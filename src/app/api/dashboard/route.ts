@@ -9,7 +9,8 @@ import {
   getLiquidationDataBybit,
   getMacroeconomicData,
   getEMALevels,
-  getChartTechnicalData
+  getChartTechnicalData,
+  getPointOfInterestAndControl
 } from '@/lib/api';
 
 export async function GET() {
@@ -22,13 +23,16 @@ export async function GET() {
     ]);
 
     // Fetch improved data sources in parallel
-    const [etf, liquidations, macro, chartTechnicals1d, chartTechnicals4h, chartTechnicals15m] = await Promise.all([
+    const [etf, liquidations, macro, chartTechnicals1d, chartTechnicals4h, chartTechnicals15m, poi1d, poi4h, poi15m] = await Promise.all([
       getEtfFlowsImproved(),
       getLiquidationDataBybit(prices?.usdt || 87000),
       getMacroeconomicData(),
       getChartTechnicalData(prices?.usdt || 87000, '1day'),
       getChartTechnicalData(prices?.usdt || 87000, '4h'),
-      getChartTechnicalData(prices?.usdt || 87000, '15m')
+      getChartTechnicalData(prices?.usdt || 87000, '15m'),
+      getPointOfInterestAndControl(prices?.usdt || 87000, '1day'),
+      getPointOfInterestAndControl(prices?.usdt || 87000, '4h'),
+      getPointOfInterestAndControl(prices?.usdt || 87000, '15m')
     ]);
 
     const signals = calculateSignals(prices, onChain, chartTechnicals1d);
@@ -55,6 +59,11 @@ export async function GET() {
         '1day': chartTechnicals1d,
         '4h': chartTechnicals4h,
         '15m': chartTechnicals15m
+      },
+      pointOfInterestAndControl: {
+        '1day': poi1d,
+        '4h': poi4h,
+        '15m': poi15m
       },
       sentiment: {
         score: fng?.score || 0.5,

@@ -591,6 +591,163 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Point of Interest & Point of Control - Multi-Timeframe Section */}
+        <section className="col-span-3 md:col-span-3 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-5 h-5 text-purple-400" />
+            <h2 className="text-xl font-bold">Point of Interest & Control (Multi-Timeframe)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 1-Day POI/POC */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-purple-400">1 Day</h3>
+              
+              {/* Point of Control */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">POC</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.pointOfInterestAndControl?.['1day']?.pointOfControl?.distance < 1 ? "text-red-300 bg-red-500/10" : data.pointOfInterestAndControl?.['1day']?.pointOfControl?.distance < 3 ? "text-yellow-300 bg-yellow-500/10" : "text-slate-300 bg-slate-500/10"
+                  )}>
+                    {data.pointOfInterestAndControl?.['1day']?.pointOfControl?.distance?.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono text-purple-400">
+                  ${data.pointOfInterestAndControl?.['1day']?.pointOfControl?.price?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">Vol: {(data.pointOfInterestAndControl?.['1day']?.pointOfControl?.volume / 1e6)?.toFixed(1)}M</div>
+              </div>
+
+              {/* VWAP */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">VWAP</span>
+                  <span className="text-xs font-mono text-blue-400">{data.pointOfInterestAndControl?.['1day']?.vwapDistance?.toFixed(2)}%</span>
+                </div>
+                <div className="text-lg font-bold font-mono text-blue-400">
+                  ${data.pointOfInterestAndControl?.['1day']?.volumeWeightedAvgPrice?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+              </div>
+
+              {/* POI Levels */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <span className="text-xs text-slate-500 uppercase font-bold">POI Levels</span>
+                <div className="text-xs space-y-1 font-mono mt-2">
+                  {data.pointOfInterestAndControl?.['1day']?.pointsOfInterest?.map((level: number, i: number) => (
+                    <div key={i} className="flex justify-between text-slate-300">
+                      <span>L{i + 1}:</span>
+                      <span>${level?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interpretation */}
+              <div className="text-xs text-slate-300">{data.pointOfInterestAndControl?.['1day']?.interpretation}</div>
+            </div>
+
+            {/* 4-Hour POI/POC */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-purple-400">4 Hour</h3>
+              
+              {/* Point of Control */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">POC</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.pointOfInterestAndControl?.['4h']?.pointOfControl?.distance < 1 ? "text-red-300 bg-red-500/10" : data.pointOfInterestAndControl?.['4h']?.pointOfControl?.distance < 3 ? "text-yellow-300 bg-yellow-500/10" : "text-slate-300 bg-slate-500/10"
+                  )}>
+                    {data.pointOfInterestAndControl?.['4h']?.pointOfControl?.distance?.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono text-purple-400">
+                  ${data.pointOfInterestAndControl?.['4h']?.pointOfControl?.price?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">Vol: {(data.pointOfInterestAndControl?.['4h']?.pointOfControl?.volume / 1e6)?.toFixed(1)}M</div>
+              </div>
+
+              {/* VWAP */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">VWAP</span>
+                  <span className="text-xs font-mono text-blue-400">{data.pointOfInterestAndControl?.['4h']?.vwapDistance?.toFixed(2)}%</span>
+                </div>
+                <div className="text-lg font-bold font-mono text-blue-400">
+                  ${data.pointOfInterestAndControl?.['4h']?.volumeWeightedAvgPrice?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+              </div>
+
+              {/* POI Levels */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <span className="text-xs text-slate-500 uppercase font-bold">POI Levels</span>
+                <div className="text-xs space-y-1 font-mono mt-2">
+                  {data.pointOfInterestAndControl?.['4h']?.pointsOfInterest?.map((level: number, i: number) => (
+                    <div key={i} className="flex justify-between text-slate-300">
+                      <span>L{i + 1}:</span>
+                      <span>${level?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interpretation */}
+              <div className="text-xs text-slate-300">{data.pointOfInterestAndControl?.['4h']?.interpretation}</div>
+            </div>
+
+            {/* 15-Minute POI/POC */}
+            <div className="space-y-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <h3 className="text-lg font-bold text-center text-purple-400">15 Min</h3>
+              
+              {/* Point of Control */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">POC</span>
+                  <span className={cn(
+                    "text-xs font-bold px-2 py-1 rounded",
+                    data.pointOfInterestAndControl?.['15m']?.pointOfControl?.distance < 1 ? "text-red-300 bg-red-500/10" : data.pointOfInterestAndControl?.['15m']?.pointOfControl?.distance < 3 ? "text-yellow-300 bg-yellow-500/10" : "text-slate-300 bg-slate-500/10"
+                  )}>
+                    {data.pointOfInterestAndControl?.['15m']?.pointOfControl?.distance?.toFixed(2)}%
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono text-purple-400">
+                  ${data.pointOfInterestAndControl?.['15m']?.pointOfControl?.price?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">Vol: {(data.pointOfInterestAndControl?.['15m']?.pointOfControl?.volume / 1e6)?.toFixed(1)}M</div>
+              </div>
+
+              {/* VWAP */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-slate-500 uppercase font-bold">VWAP</span>
+                  <span className="text-xs font-mono text-blue-400">{data.pointOfInterestAndControl?.['15m']?.vwapDistance?.toFixed(2)}%</span>
+                </div>
+                <div className="text-lg font-bold font-mono text-blue-400">
+                  ${data.pointOfInterestAndControl?.['15m']?.volumeWeightedAvgPrice?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+              </div>
+
+              {/* POI Levels */}
+              <div className="p-3 bg-slate-800/50 rounded border border-slate-700">
+                <span className="text-xs text-slate-500 uppercase font-bold">POI Levels</span>
+                <div className="text-xs space-y-1 font-mono mt-2">
+                  {data.pointOfInterestAndControl?.['15m']?.pointsOfInterest?.map((level: number, i: number) => (
+                    <div key={i} className="flex justify-between text-slate-300">
+                      <span>L{i + 1}:</span>
+                      <span>${level?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interpretation */}
+              <div className="text-xs text-slate-300">{data.pointOfInterestAndControl?.['15m']?.interpretation}</div>
+            </div>
+          </div>
+        </section>
+
         {/* On-Chain Data */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
