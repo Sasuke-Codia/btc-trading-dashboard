@@ -204,7 +204,7 @@ export default function Dashboard() {
               <p className="text-3xl font-bold text-white">
                 {data.etf.totalNetFlow > 0 ? '+' : ''}{data.etf.totalNetFlow}M USD
               </p>
-              <p className="text-[10px] text-slate-500 mt-2">Quelle: Farside Investors (Aggregiert)</p>
+              <p className="text-[10px] text-slate-500 mt-2">Quelle: {data.etf.source}</p>
             </div>
 
             <div className="space-y-3">
