@@ -164,7 +164,7 @@ export async function getLiquidationDataBybit(currentPrice: number) {
       axios.get(`https://api.bybit.com/v5/market/liquidation?category=linear&symbol=BTCUSDT&limit=50`)
     ]);
 
-    const liquidations = [];
+    const liquidations: Array<{ price: number; amount: number; type: string }> = [];
 
     // Process Long Liquidations
     if (longLiqRes.data.result?.list) {
@@ -615,10 +615,10 @@ export async function getMacroeconomicData() {
     const inflationSignal = getInflationSignal(inflationRate, inflationChange);
     const fedSignal = getFedRateSignal(fedRate, fedRateChange);
     const goldSignal = getGoldSignal(goldPrice, goldPriceChange);
-    const m2Signal = getM2Signal(m2Approximation, m2Change);
+    const m2Signal = getM2Signal(m2Trillions, m2Change);
 
     return {
-      m2Trillions: m2Approximation,
+      m2Trillions: m2Trillions,
       m2Change: Math.round(m2Change * 100) / 100,
       m2ToGoldRatio: (m2Trillions * 1_000_000_000_000) / (goldPrice * 31.1035),
       m2ToBtcRatio: 0, // Wird in Dashboard berechnet mit aktuellem BTC Preis
@@ -685,9 +685,9 @@ export async function getChartTechnicalData(currentPrice: number) {
       volume: parseFloat(candle[5])
     }));
 
-    const closes = candles.map(c => c.close);
-    const highs = candles.map(c => c.high);
-    const lows = candles.map(c => c.low);
+    const closes = candles.map((c: { timestamp: number; open: number; high: number; low: number; close: number; volume: number }) => c.close);
+    const highs = candles.map((c: { timestamp: number; open: number; high: number; low: number; close: number; volume: number }) => c.high);
+    const lows = candles.map((c: { timestamp: number; open: number; high: number; low: number; close: number; volume: number }) => c.low);
 
     // Calculate RSI (Relative Strength Index) - 14 period
     const calculateRSI = (prices: number[], period: number = 14): number => {
@@ -758,8 +758,8 @@ export async function getChartTechnicalData(currentPrice: number) {
     const macdHistogram = macdLine - signalLine;
 
     // Bollinger Bands (20-period SMA, 2 std dev)
-    const sma20 = closes.slice(-20).reduce((a, b) => a + b, 0) / 20;
-    const variance = closes.slice(-20).reduce((sum, price) => sum + Math.pow(price - sma20, 2), 0) / 20;
+    const sma20 = closes.slice(-20).reduce((a: number, b: number) => a + b, 0) / 20;
+    const variance = closes.slice(-20).reduce((sum: number, price: number) => sum + Math.pow(price - sma20, 2), 0) / 20;
     const stdDev = Math.sqrt(variance);
     const bbUpper = sma20 + (stdDev * 2);
     const bbLower = sma20 - (stdDev * 2);
@@ -811,11 +811,12 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
 
   return signals.join(' | ');
 }
-  try {
-    // Fetch 1-year daily OHLC data from Bitget API
-    const kinesRes = await axios.get(
-      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
-    );
+  export async function getEmaLevels(currentPrice: number) {
+    try {
+      // Fetch 1-year daily OHLC data from Bitget API
+      const kinesRes = await axios.get(
+        `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
+      );
 
     if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
       throw new Error('No Bitget klines data received');
