@@ -933,7 +933,8 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
         ema200: 15,
       },
       interpretation: '✅ Alle EMA Levels sind mehr als 5% entfernt. Markt ist in freier Bewegung.',
-      source: 'Fallback calculation'
+      source: 'Fallback calculation',
+      lastCandle: new Date().toISOString()
     };
   }
 }
