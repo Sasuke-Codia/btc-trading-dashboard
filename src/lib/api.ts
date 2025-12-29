@@ -666,9 +666,9 @@ export async function getMacroeconomicData() {
 
 export async function getChartTechnicalData(currentPrice: number) {
   try {
-    // Fetch 1-year daily klines from Bitget
+    // Fetch 1-year daily klines from Bitget - USE 1day NOT 1d
     const kinesRes = await axios.get(
-      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
+      `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1day&limit=365`
     );
 
     if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
@@ -764,6 +764,8 @@ export async function getChartTechnicalData(currentPrice: number) {
     const bbUpper = sma20 + (stdDev * 2);
     const bbLower = sma20 - (stdDev * 2);
 
+    console.log('✅ Chart Technical Data: Live RSI:', rsi14.toFixed(2), 'MACD Hist:', macdHistogram.toFixed(2));
+
     return {
       rsi14: Math.round(rsi14 * 100) / 100,
       macd: {
@@ -792,7 +794,34 @@ export async function getChartTechnicalData(currentPrice: number) {
     };
   } catch (error) {
     console.error('Error fetching chart technical data:', error);
-    return null;
+    // Fallback: Return neutral technical data instead of null
+    console.log('⚠️ Chart Technical Data: Using fallback values');
+    return {
+      rsi14: 50,
+      macd: {
+        line: 0,
+        signal: 0,
+        histogram: 0
+      },
+      bollingerBands: {
+        upper: currentPrice * 1.02,
+        middle: currentPrice,
+        lower: currentPrice * 0.98
+      },
+      pivotPoints: {
+        resistance2: currentPrice * 1.05,
+        resistance1: currentPrice * 1.025,
+        pivot: currentPrice,
+        support1: currentPrice * 0.975,
+        support2: currentPrice * 0.95
+      },
+      yearHighLow: {
+        high52: currentPrice * 1.15,
+        low52: currentPrice * 0.85,
+        range: 30
+      },
+      interpretation: '⚠️ Fallback - API momentan nicht erreichbar'
+    };
   }
 }
 
@@ -811,11 +840,11 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
 
   return signals.join(' | ');
 }
-  export async function getEmaLevels(currentPrice: number) {
+  export async function getEMALevels(currentPrice: number) {
     try {
-      // Fetch 1-year daily OHLC data from Bitget API
+      // Fetch 1-year daily OHLC data from Bitget API - USE 1day NOT 1d
       const kinesRes = await axios.get(
-        `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1d&limit=365`
+        `${BITGET_BASE_URL}/spot/market/candles?symbol=BTCUSDT&granularity=1day&limit=365`
       );
 
     if (!kinesRes.data.data || kinesRes.data.data.length === 0) {
@@ -845,6 +874,8 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
     const ema21 = calculateEMA(closePrices, 21);
     const ema50 = calculateEMA(closePrices, 50);
     const ema200 = calculateEMA(closePrices, 200);
+
+    console.log('✅ EMA Levels: Live data fetched from Bitget - EMA9:', ema9.toFixed(2), 'EMA21:', ema21.toFixed(2), 'EMA50:', ema50.toFixed(2), 'EMA200:', ema200.toFixed(2));
 
     const levels = {
       ema9,
