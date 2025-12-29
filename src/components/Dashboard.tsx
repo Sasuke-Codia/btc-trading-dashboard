@@ -386,6 +386,90 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Chart Technicals Section */}
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-5 h-5 text-cyan-400" />
+            <h2 className="text-lg font-semibold">Chart Technicals</h2>
+          </div>
+          <div className="space-y-4">
+            {/* RSI */}
+            <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] text-slate-500 uppercase font-bold">RSI-14</span>
+                <span className={cn(
+                  "text-sm font-bold font-mono",
+                  data.chartTechnicals?.rsi14 > 70 ? "text-red-400" : data.chartTechnicals?.rsi14 < 30 ? "text-green-400" : "text-yellow-400"
+                )}>
+                  {data.chartTechnicals?.rsi14?.toFixed(2)}
+                </span>
+              </div>
+              <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full transition-all",
+                    data.chartTechnicals?.rsi14 > 70 ? "bg-red-500" : data.chartTechnicals?.rsi14 < 30 ? "bg-green-500" : "bg-yellow-500"
+                  )}
+                  style={{ width: `${data.chartTechnicals?.rsi14 || 0}%` }}
+                />
+              </div>
+              <p className="text-[8px] text-slate-400 mt-1">
+                {data.chartTechnicals?.rsi14 > 70 ? "Überkauft" : data.chartTechnicals?.rsi14 < 30 ? "Überverkauft" : "Neutral"}
+              </p>
+            </div>
+
+            {/* MACD */}
+            <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <p className="text-[10px] text-slate-500 uppercase font-bold mb-2">MACD</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Line:</span>
+                  <span className="font-mono text-white">{data.chartTechnicals?.macd?.line?.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Signal:</span>
+                  <span className="font-mono text-white">{data.chartTechnicals?.macd?.signal?.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-slate-700">
+                  <span className="text-slate-400">Histogram:</span>
+                  <span className={cn(
+                    "font-mono font-bold",
+                    data.chartTechnicals?.macd?.histogram > 0 ? "text-green-400" : "text-red-400"
+                  )}>
+                    {data.chartTechnicals?.macd?.histogram?.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bollinger Bands */}
+            <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <p className="text-[10px] text-slate-500 uppercase font-bold mb-2">Bollinger Bands</p>
+              <div className="space-y-1 text-[9px]">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Upper:</span>
+                  <span className="font-mono text-red-400">${data.chartTechnicals?.bollingerBands?.upper?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Middle:</span>
+                  <span className="font-mono text-yellow-400">${data.chartTechnicals?.bollingerBands?.middle?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Lower:</span>
+                  <span className="font-mono text-green-400">${data.chartTechnicals?.bollingerBands?.lower?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Interpretation */}
+            <div className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/50">
+              <p className="text-[8px] text-slate-400 leading-relaxed">
+                {data.chartTechnicals?.interpretation}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* On-Chain Data */}
         <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-6">
@@ -501,6 +585,70 @@ export default function Dashboard() {
               <div className="flex justify-between items-center text-xs">
                 <span className="text-slate-400">M2 to BTC Ratio</span>
                 <span className="font-mono text-white font-bold">{data.macro.m2ToBtcRatio.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pivot Points & Support/Resistance */}
+        <section className="col-span-1 md:col-span-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-5 h-5 text-pink-400" />
+            <h2 className="text-lg font-semibold">Pivot Points</h2>
+          </div>
+          <div className="space-y-3">
+            {/* Resistance Levels */}
+            <div className="space-y-2">
+              <p className="text-[10px] text-red-400 uppercase font-bold">Resistance</p>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center p-2 bg-red-500/10 rounded border border-red-500/20">
+                  <span className="text-[9px] text-slate-400">R2</span>
+                  <span className="font-mono text-red-400 font-bold">${data.chartTechnicals?.pivotPoints?.resistance2?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-orange-500/10 rounded border border-orange-500/20">
+                  <span className="text-[9px] text-slate-400">R1</span>
+                  <span className="font-mono text-orange-400 font-bold">${data.chartTechnicals?.pivotPoints?.resistance1?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Pivot Point */}
+            <div className="flex justify-between items-center p-3 bg-yellow-500/10 rounded border border-yellow-500/20">
+              <span className="text-[10px] text-yellow-400 uppercase font-bold">Pivot</span>
+              <span className="font-mono text-yellow-400 font-bold text-lg">${data.chartTechnicals?.pivotPoints?.pivot?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            </div>
+
+            {/* Support Levels */}
+            <div className="space-y-2">
+              <p className="text-[10px] text-green-400 uppercase font-bold">Support</p>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center p-2 bg-green-500/10 rounded border border-green-500/20">
+                  <span className="text-[9px] text-slate-400">S1</span>
+                  <span className="font-mono text-green-400 font-bold">${data.chartTechnicals?.pivotPoints?.support1?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-emerald-500/10 rounded border border-emerald-500/20">
+                  <span className="text-[9px] text-slate-400">S2</span>
+                  <span className="font-mono text-emerald-400 font-bold">${data.chartTechnicals?.pivotPoints?.support2?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 52-Week High/Low */}
+            <div className="pt-3 border-t border-slate-700 space-y-2">
+              <p className="text-[10px] text-cyan-400 uppercase font-bold">52-Week Range</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 bg-slate-800/30 rounded border border-slate-700/50">
+                  <p className="text-[8px] text-slate-500 mb-0.5">High</p>
+                  <p className="font-mono font-bold text-cyan-400">${data.chartTechnicals?.yearHighLow?.high52?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                </div>
+                <div className="p-2 bg-slate-800/30 rounded border border-slate-700/50">
+                  <p className="text-[8px] text-slate-500 mb-0.5">Low</p>
+                  <p className="font-mono font-bold text-cyan-400">${data.chartTechnicals?.yearHighLow?.low52?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                </div>
+              </div>
+              <div className="p-2 bg-slate-800/30 rounded border border-slate-700/50">
+                <p className="text-[8px] text-slate-500 mb-0.5">Range %</p>
+                <p className="font-mono font-bold text-white">{data.chartTechnicals?.yearHighLow?.range?.toFixed(2)}%</p>
               </div>
             </div>
           </div>
