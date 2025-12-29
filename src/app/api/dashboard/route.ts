@@ -8,7 +8,8 @@ import {
   getEtfFlowsImproved,
   getLiquidationDataBybit,
   getMacroeconomicData,
-  getEMALevels
+  getEMALevels,
+  getChartTechnicalData
 } from '@/lib/api';
 
 export async function GET() {
@@ -21,15 +22,16 @@ export async function GET() {
     ]);
 
     // Fetch improved data sources in parallel
-    const [etf, liquidations, macro] = await Promise.all([
+    const [etf, liquidations, macro, chartTechnicals] = await Promise.all([
       getEtfFlowsImproved(),
       getLiquidationDataBybit(prices?.usdt || 87000),
-      getMacroeconomicData()
+      getMacroeconomicData(),
+      getChartTechnicalData(prices?.usdt || 87000)
     ]);
 
     const signals = calculateSignals(prices, onChain);
     
-    // Berechne EMA Levels
+    // Berechne EMA Levels (now from Bitget klines)
     const emaLevels = prices ? await getEMALevels(prices.usdt) : null;
 
     // Berechne M2 zu BTC Verhältnis
@@ -47,6 +49,7 @@ export async function GET() {
         m2ToBtcRatio: Math.round(m2ToBtcRatio)
       },
       emaLevels,
+      chartTechnicals,
       sentiment: {
         score: fng?.score || 0.5,
         label: fng?.label || 'Neutral',
