@@ -883,7 +883,7 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
     const binSize = currentPrice * 0.001; // 0.1% of current price as bin size
     const volumeBins: Record<number, number> = {};
 
-    candles.forEach(candle => {
+    candles.forEach((candle: { close: number; volume: number }) => {
       const binKey = Math.floor(candle.close / binSize) * binSize;
       volumeBins[binKey] = (volumeBins[binKey] || 0) + candle.volume;
     });
@@ -902,7 +902,7 @@ function generateTechnicalInterpretation(rsi: number, macdHist: number, price: n
     let totalVolumeWeightedPrice = 0;
     let totalVolume = 0;
 
-    candles.forEach(candle => {
+    candles.forEach((candle: { close: number; volume: number }) => {
       totalVolumeWeightedPrice += candle.close * candle.volume;
       totalVolume += candle.volume;
     });
