@@ -5,21 +5,25 @@ import {
   getNews, 
   getFearAndGreed, 
   calculateSignals,
-  getEtfFlows,
-  getLiquidationData,
+  getEtfFlowsImproved,
+  getLiquidationDataBybit,
   getMacroeconomicData,
   getEMALevels
 } from '@/lib/api';
 
 export async function GET() {
   try {
-    const [prices, onChain, news, fng, etf, liquidations, macro] = await Promise.all([
+    const [prices, onChain, news, fng] = await Promise.all([
       getBitgetPrices(),
       getOnChainData(),
       getNews(),
-      getFearAndGreed(),
-      getEtfFlows(),
-      getLiquidationData(),
+      getFearAndGreed()
+    ]);
+
+    // Fetch improved data sources in parallel
+    const [etf, liquidations, macro] = await Promise.all([
+      getEtfFlowsImproved(),
+      getLiquidationDataBybit(prices?.usdt || 87000),
       getMacroeconomicData()
     ]);
 
