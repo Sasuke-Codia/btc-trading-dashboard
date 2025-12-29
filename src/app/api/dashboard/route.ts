@@ -53,7 +53,9 @@ export async function GET() {
       sentiment: {
         score: fng?.score || 0.5,
         label: fng?.label || 'Neutral',
-        summary: `The Fear & Greed Index is currently ${fng?.label}. This psychological indicator reflects market sentiment based on volatility, social media, and market momentum.`
+        summary: `The Fear & Greed Index is currently ${fng?.label}. This psychological indicator reflects market sentiment based on volatility, social media, and market momentum.`,
+        source: fng?.source || 'Unknown',
+        isLive: fng?.isLive || false
       },
       timestamp: new Date().toISOString()
     });

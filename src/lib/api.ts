@@ -315,11 +315,21 @@ export async function getFearAndGreed() {
     return {
       score: parseInt(data.value) / 100,
       label: data.value_classification,
-      timestamp: data.timestamp
+      timestamp: data.timestamp,
+      source: 'Live - alternative.me/fng',
+      isLive: true
     };
   } catch (error) {
     console.error('Error fetching Fear & Greed:', error);
-    return null;
+    // Fallback mit aktueller Zeit (kein statischer Wert)
+    const now = new Date();
+    return {
+      score: 0.5, // Neutral fallback
+      label: 'Neutral',
+      timestamp: now.toISOString(),
+      source: 'Fallback - API unavailable',
+      isLive: false
+    };
   }
 }
 

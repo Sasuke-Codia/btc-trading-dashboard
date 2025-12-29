@@ -511,6 +511,12 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-5 h-5 text-green-400" />
             <h2 className="text-lg font-semibold">Fear & Greed Index</h2>
+            <span className={cn(
+              "text-[8px] font-bold uppercase px-2 py-0.5 rounded",
+              data.sentiment.isLive ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"
+            )}>
+              {data.sentiment.isLive ? '🔴 LIVE' : '⚠️ Fallback'}
+            </span>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -534,6 +540,7 @@ export default function Dashboard() {
             <p className="text-xs text-slate-400 leading-relaxed italic">
               {data.sentiment.summary}
             </p>
+            <p className="text-[8px] text-slate-500">Quelle: {data.sentiment.source}</p>
           </div>
         </section>
 
